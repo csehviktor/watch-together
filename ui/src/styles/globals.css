@@ -1,0 +1,35 @@
+@import "tailwindcss";
+
+@theme {
+    --color-background: #121212;
+    
+    --color-box: #252525;
+    --color-box-success: #79f571;
+    --color-box-warning: #cf8825;
+    --color-border: #474747;
+
+    --color-btn-primary: #ff5260;
+    --color-btn-secondary: #ad5405;
+
+    --color-primary: #9c9c9c;
+    --color-secondary: #efefef;
+    --color-tertiary: #8f2929;
+    --color-success: #136e26;
+    --color-warning: #e8c854;
+}
+
+button, input[type=submit], .buttonLike {
+    @apply h-full rounded-md text-secondary
+}
+
+button:active, input[type=submit]:active, .buttonLike:active {
+    @apply scale-95
+}
+
+input:focus {
+    @apply outline-hidden
+}
+
+body {
+    @apply bg-background text-primary;
+}

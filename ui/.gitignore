@@ -1,0 +1,11 @@
+dist/
+node_modules/
+.vscode/
+.astro/
+.env
+.env.local
+.idea/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*

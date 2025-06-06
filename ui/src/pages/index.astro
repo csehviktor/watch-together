@@ -1,0 +1,58 @@
+---
+import Layout from "../layouts/PageLayout.astro";
+import "../styles/globals.css"
+
+const cookies = Astro.cookies
+const username = cookies.get("username")?.value
+---
+
+<Layout title="watch-together | home">
+	<div class="my-3">
+		username: <span id="username">{username ?? "-"}</span>
+	</div>
+
+	<div class="grid grid-cols-2 items-center justify-center gap-3">
+		<form id="joinroom">
+			<input type="text" name="code" placeholder="Join a room" class="w-full border border-border p-2 rounded-lg" />
+			<input type="submit" value="Join" class="buttonLike p-2 bg-btn-secondary w-full" />
+		</form>
+
+		<button class="bg-btn-primary" id="createroom">Create a room</button>
+	</div>
+
+	<script>
+		import { initializeConnection } from "../handler"
+
+		function handleJoinRoom(e: SubmitEvent) {
+			e.preventDefault()
+
+			var data = new FormData(e.target as HTMLFormElement)
+			let code = data.get("code") as string
+
+			if (code === "") return
+
+			window.location.href = `/room/${code}/`
+		}
+
+		function handleCreateRoom() {
+			initializeConnection(`${import.meta.env.PUBLIC_WS_ENDPOINT}/createroom/`, {
+				onCodeReceived: (code) => window.location.href = `/room/${code}/`,
+				onError: (error) => alert(error),
+			})
+		}
+
+		const button = document.getElementById("createroom")
+		button?.addEventListener("click", handleCreateRoom)
+
+		const form = document.getElementById("joinroom")
+		form?.addEventListener("submit", handleJoinRoom)
+
+		/*
+		const username = document.getElementById("username")
+
+		document.addEventListener("DOMContentLoaded", () => {
+			document.cookie = "username=asd; path=/; max-age=604800"
+		})
+			*/
+	</script>
+</Layout>
