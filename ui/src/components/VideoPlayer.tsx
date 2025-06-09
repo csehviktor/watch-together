@@ -1,27 +1,27 @@
 "use client"
 
-import { type Video, sendWebsocketMessage } from "../handler"
+import { type Video, sendWebsocketMessage } from "../websocket"
+import { useWebsocket } from "../hooks/useWebsocket"
 import { useRef, useState } from "react"
-import { useWebsocket } from "../hook/useWebsocket"
 import ReactPlayer from "react-player"
+import { Screensaver } from "./Screensaver"
 
-export default function VideoPlayer() {
-    const lastSeekRef = useRef<number>(0);
-    const playerRef = useRef<HTMLVideoElement | null>(null);
+
+export function VideoPlayer() {
+    const lastSeekRef = useRef<number>(0)
+    const playerRef = useRef<HTMLVideoElement | null>(null)
+    const [volume, setVolume] = useState<number>(0)
     const [currentVideo, setCurrentVideo] = useState<Video | null>(null)
 
     useWebsocket({
-        video: ({ video }: { video: Video }) => {
+        room: ({ room: { video } }: { room: { video: Video } }) => {
             if(lastSeekRef.current !== video.timestamp && playerRef.current) {
                 playerRef.current.currentTime = video.timestamp
             }
+
             setCurrentVideo(video)
         }
     })
-
-    function handleReady() {
-        lastSeekRef.current = currentVideo?.timestamp ?? 0
-    }
 
     function handleUnpause() {
         sendWebsocketMessage("unpause")
@@ -39,23 +39,28 @@ export default function VideoPlayer() {
     }
 
     return(
-        <div className="relative h-96 lg:h-[700px] w-full shadow-lg overflow-hidden bg-background/10 flex items-center justify-center">
-            {
-                currentVideo === null 
-                ? <p>no video yet</p>
-                : (<ReactPlayer
-                    ref={playerRef}
-                    src={currentVideo?.url}
-                    controls
-                    style={{ width: "100%", height: "100%" }}
-                    playing={currentVideo?.state === "playing"}
-                    onReady={handleReady}
-                    onPlay={handleUnpause}
-                    onPause={handlePause}
-                    onSeeked={(_) => handleSeek()}
-                />
-                )
-            }
+        <div className="bg-gray-900/60 backdrop-blur-sm border border-gray-700/40 rounded-xl overflow-hidden">
+            <div className="relative aspect-video bg-black">
+                { 
+                    currentVideo ? (
+                        <ReactPlayer
+                            ref={playerRef}
+                            src={currentVideo?.url}
+                            controls
+                            style={{ width: "100%", height: "100%" }}
+                            playing={currentVideo?.state === "playing"}
+                            volume={volume}
+                            onVolumeChange={() => setVolume(playerRef.current?.volume ?? 0)}
+                            onPlay={handleUnpause}
+                            onPause={handlePause}
+                            onSeeked={handleSeek}
+                            className="w-full h-full object-cover"
+                        />
+                    ) : (
+                        <Screensaver />
+                    )
+                }    
+            </div>
         </div>
     )
 }

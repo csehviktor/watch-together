@@ -9,6 +9,11 @@ export type WebsocketMessage = {
     timestamp: string
 }
 
+export type WebsocketClient = {
+    username: string,
+    avatar: string | null
+}
+
 export type Video = {
     url: string,
     state: string,
@@ -17,10 +22,14 @@ export type Video = {
 
 export type Room = {
     connection: WebSocket
-    video: Video | null
+    room: {
+        admin: WebsocketClient | null,
+        users: WebsocketClient[],
+        video: Video | null
+    }
 }
 
-export const room = atom<Room | null>(null)
+export const roomStore = atom<Room | null>(null)
 
 type ConnectionCallbacks = {
     onConnected?: () => void
@@ -29,20 +38,33 @@ type ConnectionCallbacks = {
     //onDisconnected?: () => void
 }
 
-export function initializeConnection(url: string, callbacks: ConnectionCallbacks) {
-    if(room.get()) return
+export function initializeConnection(url: string, callbacks: ConnectionCallbacks, client: WebsocketClient | null) {
+    if(roomStore.get()) return
+    
+    if(!client || !client?.username) {
+        callbacks.onError?.("client or username is missing")
+        return
+    }
 
     const ws = new WebSocket(url)
     
     ws.onopen = () => {
-        room.set({
+        roomStore.set({
             connection: ws,
-            video: null
-        })
+            room: {
+                admin: null,
+                users: [],
+                video: null
+            }
+        })        
+        ws.send(JSON.stringify(client))
+        console.log("websocket connected")
     }
 
     ws.onmessage = (e: MessageEvent) => {
-        const messageData = e.data;
+        const messageData = e.data
+
+        console.log(messageData)
 
         try {
             if(typeof messageData === "string" && messageData.length === 7) {
@@ -63,18 +85,28 @@ export function initializeConnection(url: string, callbacks: ConnectionCallbacks
     }
 
     ws.onclose = () => {
-        room.set(null)
+        roomStore.set(null)
+        console.log("websocket disconnected")
     }
     
     return () => ws.close()
 }
 
+
+export function closeConnection() {
+    const room = roomStore.get()
+
+    room?.connection.close()
+    roomStore.set(null)
+}
+
+
 export function sendWebsocketMessage(type: string, data?: string): void {
-    const currRoom = room.get()
+    const currRoom = roomStore.get()
 
     if (!currRoom || currRoom.connection.readyState !== WebSocket.OPEN) {
         return
     }
 
-    currRoom.connection.send(JSON.stringify({ type, data } as WebsocketMessage));
+    currRoom.connection.send(JSON.stringify({ type, data } as WebsocketMessage))
 }

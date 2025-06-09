@@ -1,0 +1,23 @@
+@import "tailwindcss";
+
+@theme {
+    --color-background: #101010;
+    --color-primary: #9c9c9c;
+    --color-secondary: #efefef;
+}
+
+body {
+    @apply bg-background text-primary;
+}
+
+::-webkit-scrollbar {
+    @apply w-1
+}
+
+::-webkit-scrollbar-track {
+    @apply bg-transparent
+}
+
+::-webkit-scrollbar-thumb {
+    @apply bg-primary/20 rounded-md
+}

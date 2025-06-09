@@ -1,13 +1,14 @@
 "use client"
 
 import { useStore } from "@nanostores/react"
-import { room } from "../handler"
+import { roomStore } from "../websocket"
 import { useEffect, useState } from "react"
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type MessageHandler = (data: any) => void
 
 export function useWebsocket(handlers: Record<string, MessageHandler>) {
-    const $room = useStore(room)
+    const $room = useStore(roomStore)
     const [isLoading, setIsLoading] = useState<boolean>(true)
 
     useEffect(() => {
