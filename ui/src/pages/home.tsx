@@ -195,7 +195,8 @@ export default function HomePage() {
                 <div onClick={() => {
                     setShowUserMenu(false)
                     localStorage.setItem("username", client!.username)
-                    localStorage.setItem("avatar", client!.avatar!)
+
+                    if(client?.avatar) localStorage.setItem("avatar", client!.avatar)
                 }} 
                 className="fixed inset-0 z-10"></div>
             )}
