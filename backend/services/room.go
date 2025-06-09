@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math/rand/v2"
+	"reflect"
 	"strconv"
 
 	"github.com/csehviktor/watch-together/util"
@@ -82,6 +84,11 @@ func (r *Room) joinClient(c *client) {
 func (r *Room) leaveClient(c *client) {
 	delete(r.Clients, c)
 	r.broadcastRawMessage("client (%s) left the room", c.Username)
+
+	// random client gets to be admin if admin leaves
+	if r.Admin == c && len(r.Clients) > 0 {
+		r.Admin = reflect.ValueOf(r.Clients).MapKeys()[rand.IntN(len(r.Clients))].Interface().(*client)
+	}
 }
 
 func (r *Room) broadcastMessage(msg *message) {
