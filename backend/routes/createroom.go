@@ -9,8 +9,8 @@ import (
 func HandleCreateRoom(ws *websocket.Conn) {
 	defer ws.Close()
 
-	if _, err := usernameFromRequest(ws.Request()); err != nil {
-		ws.Write(services.NewErrorMessage("username is missing or invalid").Encode())
+	if _, err := receiveClientInfo(ws); err != nil {
+		ws.Write(services.NewErrorMessage(err.Error()).Encode())
 		return
 	}
 

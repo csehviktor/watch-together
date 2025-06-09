@@ -8,21 +8,21 @@ import (
 func HandleJoinRoom(ws *websocket.Conn) {
 	defer ws.Close()
 
-	username, err := usernameFromRequest(ws.Request())
+	receiveClient, err := receiveClientInfo(ws)
 	if err != nil {
-		ws.Write(services.NewErrorMessage("username is missing or invalid").Encode())
+		ws.Write(services.NewErrorMessage(err.Error()).Encode())
 		return
 	}
 
 	code := ws.Request().PathValue("code")
 
 	room := manager.GetRoomByCode(code)
-	if room == nil || room.ContainsUsername(username) {
+	if room == nil || room.ContainsUsername(receiveClient.Username) {
 		ws.Write(services.NewErrorMessage("connecting to room was unsuccessful").Encode())
 		return
 	}
 
-	client := services.NewClient(username, room, ws)
+	client := services.NewClient(receiveClient, room, ws)
 
 	room.Join <- client
 	defer func() {
