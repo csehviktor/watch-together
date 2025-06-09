@@ -138,10 +138,10 @@ export function RoomChat() {
 
             {/* command toolbar */}
             { showCommandToolbar && filteredCommands.length > 0 && (
-                <div className="absolute bottom-16 w-full mb-2 bg-gray-800/10 backdrop-brightness-0 border border-gray-600/60 rounded-lg overflow-hidden">
+                <div className="mx-4 mb-2 bg-gray-800/10 backdrop-brightness-0 border border-gray-600/60 rounded-lg">
                     { filteredCommands.map((command, index) => (
                         <div 
-                            key={command.name} 
+                            key={command.name}
                             className={`p-3 cursor-pointer transiton-colors ${index === selectedCommandIndex ? "bg-purple-600/40" : "hover:bg-purple-600/40"}`}
                             onClick={() => selectCommand(command)}
                         >
@@ -168,7 +168,7 @@ export function RoomChat() {
             )}
 
             {/* send message input */}
-            <div className="p-1 border-t border-gray-700/30 h-[4rem]">
+            <div className="p-1 border-t border-gray-700/30">
                 <div className="flex items-center jusitfy-between">
                     <input
                         ref={chatInputRef}
@@ -195,7 +195,7 @@ export function RoomChat() {
 }
 
 function Message({ message }: { message: WebsocketMessage }) {
-    if (message.type === "error") {
+    if(message.type === "error") {
         return <p className="font-medium text-red-300 bg-red-500/30 p-2 rounded-lg">{ message.data }</p>
     }
     

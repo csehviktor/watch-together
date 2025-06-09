@@ -1,13 +1,15 @@
 import { closeConnection, initializeConnection } from "../websocket"
-import { useState } from "react"
 import { useNavigate } from "react-router"
-import { Play, Users, User, Camera, Settings, Tv } from "lucide-react"
+import { useRef, useState } from "react"
+import { Play, Users, Camera, Settings, Tv } from "lucide-react"
 import { useLocalStorage } from "../hooks/useLocalStorage"
+import { Avatar } from "../components/Avatar"
 
 export default function HomePage() {
     const navigate = useNavigate()
     const { client, setClient } = useLocalStorage()
 
+    const fileInputRef = useRef<HTMLInputElement | null>(null) 
     const [roomCode, setRoomCode] = useState<string>("")
     const [showUserMenu, setShowUserMenu] = useState<boolean>(false)
 
@@ -25,6 +27,24 @@ export default function HomePage() {
         
         return () => closeConnection()
     }
+
+    const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+
+        if(!file || !file.type.startsWith("image/")) {
+            alert("invalid file type")
+            return
+        }
+
+        if(file.size > 5 * 1024 * 1024) {
+            alert("file is too large")
+            return
+        }
+
+        const reader = new FileReader()
+        reader.onload = (e) => setClient(prev => ({ ...prev!, avatar: e.target?.result as string}))
+        reader.readAsDataURL(file)
+    }
     
     return(
         <div>
@@ -40,7 +60,7 @@ export default function HomePage() {
                 {/* user menu */}
                 <div className="relative">
                     <button onClick={() => setShowUserMenu(!showUserMenu)} className="flex cursor-pointer items-center space-x-3 backdrop-blur-sm border border-slate-700/50 rounded-lg px-4 py-2.5 transition-all duration-200 group">
-                        <User className="w-4 h-4" />
+                        <Avatar client={client} width={8} height={8} />
                         <span className="font-medium hidden sm:block">{client?.username ?? ""}</span>
                         <Settings className="w-4 h-4 text-slate-400 group-hover:text-secondary transition-colors" />
                     </button>
@@ -60,8 +80,20 @@ export default function HomePage() {
                                 />
                             </div>
                             <div>
-                                <label htmlFor="pfp" className="block text-sm font-semibold text-gray-300 mb-2">Profile Picture</label>
-                                <button className="w-full flex items-center justify-center space-x-2 bg-gray-700/20 hover:bg-gray-700/30 border border-gray-600/60 rounded-lg px-3 py-2 hover:text-secondary transition-all">
+                                <label htmlFor="avatar" className="block text-sm font-semibold text-gray-300 mb-2">Avatar</label>
+                                <input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    name="avatar"
+                                    id="fileInput"
+                                    accept="image/"
+                                    onChange={handleAvatarUpload}
+                                    className="hidden"
+                                />
+                                <button 
+                                    onClick={() => fileInputRef.current?.click()}
+                                    className="w-full flex items-center justify-center space-x-2 bg-gray-700/20 hover:bg-gray-700/30 border border-gray-600/60 rounded-lg px-3 py-2 hover:text-secondary transition-all"
+                                >
                                     <Camera className="w-4 h-4" />
                                     <span>Upload</span>
                                 </button>
@@ -163,6 +195,7 @@ export default function HomePage() {
                 <div onClick={() => {
                     setShowUserMenu(false)
                     localStorage.setItem("username", client!.username)
+                    localStorage.setItem("avatar", client!.avatar!)
                 }} 
                 className="fixed inset-0 z-10"></div>
             )}
