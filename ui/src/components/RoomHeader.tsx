@@ -33,7 +33,7 @@ export function RoomHeader({ code, connection }: { code: string, connection: Con
                 }
             case 'error':
                 return {
-                    text: 'error',
+                    text: 'disconnected',
                     color: 'text-red-400',
                     bgColor: 'bg-red-400',
                     icon: <WifiOff className="w-4 h-4" />

@@ -26,6 +26,9 @@ export function RoomChat() {
     const { isLoading } = useWebsocket({
         chat: (message: WebsocketMessage) => {
             setMessages(prev => [...prev, message])
+        },
+        error: (message: WebsocketMessage) => {
+            setMessages(prev => [...prev, message])
         }
     })
 
@@ -126,7 +129,7 @@ export function RoomChat() {
             </div>
 
             {/* messages */}
-            <div className="overflow-y-auto p-4 space-y-2 h-full max-h-[49.5rem]">
+            <div className="overflow-y-auto p-4 space-y-2 h-full min-h-96 max-h-[49.5rem]">
                 { messages.map(message => (
                     <Message key={message.timestamp} message={message} />) 
                 )}
@@ -192,6 +195,10 @@ export function RoomChat() {
 }
 
 function Message({ message }: { message: WebsocketMessage }) {
+    if (message.type === "error") {
+        return <p className="font-medium text-red-300 bg-red-500/30 p-2 rounded-lg">{ message.data }</p>
+    }
+    
     if(message.sender === null) {
         return <p className="italic">{ message.data }</p>
     }

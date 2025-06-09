@@ -11,14 +11,13 @@ export default function RoomPage() {
     const { code } = useParams()
     const { client } = useLocalStorage()
 
-    const [connection, setConnection] = useState<ConnectionStatus>('connecting')
+    const [connection, setConnection] = useState<ConnectionStatus>("connecting")
 
     useEffect(() => {
         initializeConnection(`${import.meta.env.VITE_WS_ENDPOINT}/joinroom/${code}/`, {
-            onConnected: () => setConnection('connected'),
-            onError: (error) => {
-                console.log(error)
-                setConnection('error')
+            onConnected: () => setConnection("connected"),
+            onError: (_) => {
+                setConnection("error")
             }
         }, client)
 

@@ -11,8 +11,6 @@ export function RoomClients() {
         room: ({ room: { admin, clients } } : { room: { admin: WebsocketClient, clients: WebsocketClient[] } }) => {
             if(adminRef.current !== admin) adminRef.current = admin
             if(currentClients?.length !== clients.length) setCurrentClients(clients)
-
-            console.log(clients)
         }
     })
 
