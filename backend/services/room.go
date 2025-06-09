@@ -2,6 +2,7 @@ package services
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strconv"
 
@@ -40,7 +41,20 @@ func (r *Room) Run() {
 		case client := <-r.Leave:
 			r.leaveClient(client)
 		case message := <-r.forward:
-			r.handleMessage(message)
+			switch message.Type {
+			case messagePlay:
+				if err := r.playVideo(message.Data); err != nil {
+					message.Sender.receive <- NewErrorMessage(err.Error())
+				}
+			case messageUnpause:
+				r.unpauseVideo()
+			case messagePause:
+				r.pauseVideo()
+			case messageSeek:
+				r.seekTo(message.Data)
+			case messageChat:
+				r.broadcastMessage(message)
+			}
 		}
 		// broadcast room state on every interaction
 		r.broadcastMessage(newMessage(messageRoomState, nil, r))
@@ -61,7 +75,6 @@ func (r *Room) joinClient(c *client) {
 	if len(r.Clients) == 0 {
 		r.Admin = c
 	}
-
 	r.Clients[c] = true
 	r.broadcastRawMessage("client (%s) joined the room", c.Username)
 }
@@ -69,31 +82,6 @@ func (r *Room) joinClient(c *client) {
 func (r *Room) leaveClient(c *client) {
 	delete(r.Clients, c)
 	r.broadcastRawMessage("client (%s) left the room", c.Username)
-}
-
-func (r *Room) handleMessage(msg *message) {
-	switch msg.Type {
-	case messageChat:
-		r.broadcastMessage(msg)
-	case messagePlay:
-		if util.IsYoutubeVideo(msg.Data) {
-			r.playVideo(msg.Data)
-		}
-	case messageUnpause:
-		if r.Video != nil {
-			r.Video.unpauseVideo()
-		}
-	case messagePause:
-		if r.Video != nil {
-			r.Video.pauseVideo()
-		}
-	case messageSeek:
-		timestamp, err := strconv.Atoi(msg.Data)
-		if err != nil || r.Video == nil {
-			break
-		}
-		r.Video.seekTo(timestamp)
-	}
 }
 
 func (r *Room) broadcastMessage(msg *message) {
@@ -106,10 +94,35 @@ func (r *Room) broadcastRawMessage(message string, a ...any) {
 	r.broadcastMessage(newMessage(messageChat, nil, fmt.Sprintf(message, a...)))
 }
 
-func (r *Room) playVideo(url string) {
+func (r *Room) playVideo(url string) error {
+	if !util.IsYoutubeVideo(url) {
+		return errors.New("invalid video")
+	}
+
 	if video := newVideo(url); video != nil {
 		r.Video = video
 	}
+	return nil
+}
+
+func (r *Room) pauseVideo() {
+	if r.Video != nil {
+		r.Video.pauseVideo()
+	}
+}
+
+func (r *Room) unpauseVideo() {
+	if r.Video != nil {
+		r.Video.unpauseVideo()
+	}
+}
+
+func (r *Room) seekTo(data string) {
+	timestamp, err := strconv.Atoi(data)
+	if err != nil || r.Video == nil {
+		return
+	}
+	r.Video.seekTo(timestamp)
 }
 
 func (r *Room) MarshalJSON() ([]byte, error) {
