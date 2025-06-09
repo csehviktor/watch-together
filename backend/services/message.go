@@ -8,19 +8,19 @@ import (
 type messageType string
 
 const (
-	messageChat    messageType = "chat"
-	messagePlay    messageType = "play"
-	messagePause   messageType = "pause"
-	messageUnpause messageType = "unpause"
-	messageSeek    messageType = "seek"
-	messageError   messageType = "error"
-	messageVideo   messageType = "video"
+	messageChat      messageType = "chat"
+	messagePlay      messageType = "play"
+	messagePause     messageType = "pause"
+	messageUnpause   messageType = "unpause"
+	messageSeek      messageType = "seek"
+	messageError     messageType = "error"
+	messageRoomState messageType = "room"
 )
 
 type receiveMessage struct {
-	Type  messageType `json:"type"`
-	Data  string      `json:"data,omitempty"`
-	Video *video      `json:"video,omitempty"`
+	Type     messageType `json:"type"`
+	Data     string      `json:"data,omitempty"`
+	RoomData *Room       `json:"room,omitempty"`
 }
 
 type message struct {
@@ -41,8 +41,8 @@ func newMessage(msgType messageType, sender *client, data any) *message {
 	switch v := data.(type) {
 	case string:
 		msg.receiveMessage.Data = v
-	case *video:
-		msg.receiveMessage.Video = v
+	case *Room:
+		msg.receiveMessage.RoomData = v
 	default:
 		return nil
 	}

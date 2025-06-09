@@ -7,18 +7,23 @@ import (
 )
 
 type client struct {
-	Username   string `json:"username"`
+	*ReceiveClient
 	connection *websocket.Conn
 	room       *Room
 	receive    chan *message
 }
 
-func NewClient(username string, room *Room, ws *websocket.Conn) *client {
+type ReceiveClient struct {
+	Username string  `json:"username"`
+	Avatar   *string `json:"avatar"`
+}
+
+func NewClient(receiveClient *ReceiveClient, room *Room, ws *websocket.Conn) *client {
 	newClient := &client{
-		Username:   username,
-		connection: ws,
-		room:       room,
-		receive:    make(chan *message),
+		ReceiveClient: receiveClient,
+		connection:    ws,
+		room:          room,
+		receive:       make(chan *message),
 	}
 
 	return newClient

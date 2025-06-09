@@ -1,6 +1,7 @@
 package services
 
 import (
+	"encoding/json"
 	"fmt"
 	"strconv"
 
@@ -8,11 +9,12 @@ import (
 )
 
 type Room struct {
-	Code    string
-	Clients map[*client]bool
-	Video   *video
-	Join    chan *client
-	Leave   chan *client
+	Clients map[*client]bool `json:"-"`
+	Code    string           `json:"-"`
+	Admin   *client          `json:"admin"`
+	Video   *video           `json:"video"`
+	Join    chan *client     `json:"-"`
+	Leave   chan *client     `json:"-"`
 	forward chan *message
 }
 
@@ -20,6 +22,7 @@ func NewRoom(code string) *Room {
 	newRoom := &Room{
 		Code:    code,
 		Clients: make(map[*client]bool),
+		Admin:   nil,
 		Video:   nil,
 		Join:    make(chan *client),
 		Leave:   make(chan *client),
@@ -39,7 +42,8 @@ func (r *Room) Run() {
 		case message := <-r.forward:
 			r.handleMessage(message)
 		}
-		r.broadcastMessage(newMessage(messageVideo, nil, r.Video))
+		// broadcast room state on every interaction
+		r.broadcastMessage(newMessage(messageRoomState, nil, r))
 	}
 }
 
@@ -53,6 +57,11 @@ func (r *Room) ContainsUsername(username string) bool {
 }
 
 func (r *Room) joinClient(c *client) {
+	// first one to join room gets to be admin
+	if len(r.Clients) == 0 {
+		r.Admin = c
+	}
+
 	r.Clients[c] = true
 	r.broadcastRawMessage("client (%s) joined the room", c.Username)
 }
@@ -66,20 +75,24 @@ func (r *Room) handleMessage(msg *message) {
 	switch msg.Type {
 	case messageChat:
 		r.broadcastMessage(msg)
-	case messageUnpause:
-		r.unpauseVideo()
-	case messagePause:
-		r.pauseVideo()
 	case messagePlay:
 		if util.IsYoutubeVideo(msg.Data) {
 			r.playVideo(msg.Data)
 		}
+	case messageUnpause:
+		if r.Video != nil {
+			r.Video.unpauseVideo()
+		}
+	case messagePause:
+		if r.Video != nil {
+			r.Video.pauseVideo()
+		}
 	case messageSeek:
 		timestamp, err := strconv.Atoi(msg.Data)
-		if err != nil {
+		if err != nil || r.Video == nil {
 			break
 		}
-		r.seekTo(timestamp)
+		r.Video.seekTo(timestamp)
 	}
 }
 
@@ -99,22 +112,20 @@ func (r *Room) playVideo(url string) {
 	}
 }
 
-func (r *Room) withVideo(fn func(*video)) {
-	if r.Video != nil {
-		fn(r.Video)
+func (r *Room) MarshalJSON() ([]byte, error) {
+	type Alias Room
+
+	clients := make([]*client, 0, len(r.Clients))
+
+	for client := range r.Clients {
+		clients = append(clients, client)
 	}
-}
 
-func (r *Room) pauseVideo() {
-	r.withVideo((*video).pauseVideo)
-}
-
-func (r *Room) unpauseVideo() {
-	r.withVideo((*video).unpauseVideo)
-}
-
-func (r *Room) seekTo(timestamp int) {
-	r.withVideo(func(v *video) {
-		v.seekTo(timestamp)
+	return json.Marshal(&struct {
+		*Alias
+		Clients []*client `json:"clients"`
+	}{
+		Alias:   (*Alias)(r),
+		Clients: clients,
 	})
 }
