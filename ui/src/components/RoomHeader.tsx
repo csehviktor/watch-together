@@ -3,7 +3,7 @@ import { useState } from "react"
 import { useWebsocket } from "../hooks/useWebsocket"
 import { ArrowLeft, Copy, Loader2, Users, Wifi, WifiOff } from "lucide-react"
 
-export type ConnectionStatus = 'connected' | 'connecting' | 'error'
+export type ConnectionStatus = "connected" | "connecting" | "error"
 
 export function RoomHeader({ code, connection }: { code: string, connection: ConnectionStatus }) {
     const navigate = useNavigate()
@@ -17,32 +17,32 @@ export function RoomHeader({ code, connection }: { code: string, connection: Con
 
     const getConnectionStatusInfo = () => {
         switch (connection) {
-            case 'connected':
+            case "connected":
                 return {
-                    text: 'connected',
-                    color: 'text-green-400',
-                    bgColor: 'bg-green-400',
+                    text: "connected",
+                    color: "text-green-400",
+                    bgColor: "bg-green-400",
                     icon: <Wifi className="w-4 h-4" />
                 }
-            case 'connecting':
+            case "connecting":
                 return {
-                    text: 'connecting',
-                    color: 'text-yellow-400',
-                    bgColor: 'bg-yellow-400',
+                    text: "connecting",
+                    color: "text-yellow-400",
+                    bgColor: "bg-yellow-400",
                     icon: <Loader2 className="w-4 h-4 animate-spin" />
                 }
-            case 'error':
+            case "error":
                 return {
-                    text: 'disconnected',
-                    color: 'text-red-400',
-                    bgColor: 'bg-red-400',
+                    text: "disconnected",
+                    color: "text-red-400",
+                    bgColor: "bg-red-400",
                     icon: <WifiOff className="w-4 h-4" />
                 }
             }
         }
     
     const copyRoomCode = () => {
-        navigator.clipboard.writeText(code || '')
+        navigator.clipboard.writeText(code || "")
     }
     
     const statusInfo = getConnectionStatusInfo()
@@ -52,7 +52,7 @@ export function RoomHeader({ code, connection }: { code: string, connection: Con
             <div className="w-full flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                     { /* back button */}
-                    <button onClick={() => navigate('/')} className="p-2 hover:bg-gray-700/40 rounded-lg transition-colors">
+                    <button onClick={() => navigate("/")} className="p-2 hover:bg-gray-700/40 rounded-lg transition-colors">
                         <ArrowLeft className="w-5 h-5 text-gray-400 hover:text-white" />
                     </button>
         

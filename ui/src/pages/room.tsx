@@ -8,21 +8,21 @@ import { RoomClients } from "../components/RoomClients"
 import { useLocalStorage } from "../hooks/useLocalStorage"
 
 export default function RoomPage() {
-    const { code } = useParams()
     const { client } = useLocalStorage()
+    const { code } = useParams()
 
     const [connection, setConnection] = useState<ConnectionStatus>("connecting")
 
     useEffect(() => {
         initializeConnection(`${import.meta.env.VITE_WS_ENDPOINT}/joinroom/${code}/`, {
             onConnected: () => setConnection("connected"),
-            onError: (_) => {
+            onError: () => {
                 setConnection("error")
             }
         }, client)
 
         return () => closeConnection()
-    }, [client])
+    }, [client, code])
 
     return(
         <div>

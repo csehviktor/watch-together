@@ -5,17 +5,17 @@ import { WebsocketClient } from "../websocket"
 
 export function useLocalStorage() {
     const [client, setClient] = useState<WebsocketClient | null>(null)
-    
+
     useEffect(() => {
-        let username = localStorage.getItem("username") 
-        let avatar = localStorage.getItem("avatar")
+        let username = localStorage.getItem("username")
+        const avatar = localStorage.getItem("avatar")
     
-        if(!username) {
+        if (!username) {
             username = `guest#${Math.floor(1000 + Math.random() * 9000)}`
             localStorage.setItem("username", username)
         }
     
-        setClient({ username: username, avatar: avatar } as WebsocketClient)
+        setClient({ username, avatar } as WebsocketClient)
     }, [])
 
     return { client, setClient }

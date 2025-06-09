@@ -85,7 +85,7 @@ export function initializeConnection(url: string, callbacks: ConnectionCallbacks
     }
 
     ws.onclose = () => {
-        roomStore.set(null)
+        closeConnection()
         console.log("websocket disconnected")
     }
     
