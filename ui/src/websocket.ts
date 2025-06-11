@@ -40,14 +40,14 @@ type ConnectionCallbacks = {
 
 export function initializeConnection(url: string, callbacks: ConnectionCallbacks, client: WebsocketClient | null) {
     if(roomStore.get()) return
-    
+
     if(!client || !client?.username) {
         callbacks.onError?.("client or username is missing")
         return
     }
 
     const ws = new WebSocket(url)
-    
+
     ws.onopen = () => {
         roomStore.set({
             connection: ws,
@@ -56,7 +56,7 @@ export function initializeConnection(url: string, callbacks: ConnectionCallbacks
                 users: [],
                 video: null
             }
-        })        
+        })
         ws.send(JSON.stringify(client))
         console.log("websocket connected")
     }
@@ -88,7 +88,7 @@ export function initializeConnection(url: string, callbacks: ConnectionCallbacks
         closeConnection()
         console.log("websocket disconnected")
     }
-    
+
     return () => ws.close()
 }
 

@@ -8,7 +8,7 @@ export type ConnectionStatus = "connected" | "connecting" | "error"
 export function RoomHeader({ code, connection }: { code: string, connection: ConnectionStatus }) {
     const navigate = useNavigate()
     const [clientsLength, setClientsLength] = useState<number>(0)
-    
+
     useWebsocket({
         room: ({ room: { clients } } : { room: { clients: string[] } }) => {
             setClientsLength(clients.length)
@@ -40,11 +40,11 @@ export function RoomHeader({ code, connection }: { code: string, connection: Con
                 }
             }
         }
-    
+
     const copyRoomCode = () => {
         navigator.clipboard.writeText(code || "")
     }
-    
+
     const statusInfo = getConnectionStatusInfo()
 
     return(
@@ -55,7 +55,7 @@ export function RoomHeader({ code, connection }: { code: string, connection: Con
                     <button onClick={() => navigate("/")} className="p-2 hover:bg-gray-700/40 rounded-lg transition-colors">
                         <ArrowLeft className="w-5 h-5 text-gray-400 hover:text-white" />
                     </button>
-        
+
                     { /* room code */}
                     <h1 className="text-xl font-semibold text-secondary">Room</h1>
                     <div className="flex items-center space-x-2 bg-gray-800/20 rounded-lg px-3 py-1.5">
@@ -65,7 +65,7 @@ export function RoomHeader({ code, connection }: { code: string, connection: Con
                         </button>
                     </div>
                 </div>
-            
+
                 <div className="flex items-center space-x-4">
                     { /* status */}
                     <div className="flex items-center space-x-2 bg-gray-800/20 rounded-lg px-3 py-1.5">
@@ -78,7 +78,7 @@ export function RoomHeader({ code, connection }: { code: string, connection: Con
                             <span className={`text-sm font-medium ${statusInfo.color}`}>{statusInfo.text}</span>
                         </div>
                     </div>
-            
+
                     { /* users count */}
                     <div className="hidden sm:flex items-center space-x-2 text-sm text-gray-400">
                         <Users className="w-4 h-4" />

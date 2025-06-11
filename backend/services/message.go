@@ -18,9 +18,9 @@ const (
 )
 
 type receiveMessage struct {
-	Type     messageType `json:"type"`
-	Data     string      `json:"data,omitempty"`
-	RoomData *Room       `json:"room,omitempty"`
+	Type      messageType `json:"type"`
+	Data      string      `json:"data,omitempty"`
+	RoomState *Room       `json:"room,omitempty"`
 }
 
 type message struct {
@@ -42,7 +42,7 @@ func newMessage(msgType messageType, sender *client, data any) *message {
 	case string:
 		msg.receiveMessage.Data = v
 	case *Room:
-		msg.receiveMessage.RoomData = v
+		msg.receiveMessage.RoomState = v
 	default:
 		return nil
 	}
@@ -56,6 +56,5 @@ func NewErrorMessage(data string) *message {
 
 func (m *message) Encode() []byte {
 	data, _ := json.Marshal(m)
-
 	return data
 }

@@ -6,7 +6,6 @@ import { useRef, useState } from "react"
 import ReactPlayer from "react-player"
 import { Screensaver } from "./Screensaver"
 
-
 export function VideoPlayer() {
     const lastSeekRef = useRef<number>(0)
     const playerRef = useRef<HTMLVideoElement | null>(null)
@@ -41,7 +40,7 @@ export function VideoPlayer() {
     return(
         <div className="bg-gray-900/60 backdrop-blur-sm border border-gray-700/40 rounded-xl overflow-hidden">
             <div className="relative aspect-video bg-black">
-                { 
+                {
                     currentVideo ? (
                         <ReactPlayer
                             ref={playerRef}
@@ -59,7 +58,7 @@ export function VideoPlayer() {
                     ) : (
                         <Screensaver />
                     )
-                }    
+                }
             </div>
         </div>
     )
