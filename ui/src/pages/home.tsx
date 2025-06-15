@@ -103,7 +103,7 @@ export default function HomePage() {
                 </div>
             </header>
 
-            <main className="px-6 py-12 max-w-7xl mx-auto min-h-screen">
+            <main className="px-6 py-12 max-w-7xl mx-auto">
                 <div className="grid lg:grid-cols-2 gap-16 lg:gap-28 items-center">
                     {/* left section */}
                     <div className="text-center lg:text-left">
