@@ -30,6 +30,6 @@ func HandleJoinRoom(ws *websocket.Conn) {
 		manager.AttemptRemoveRoom(room)
 	}()
 
-	go client.Write()
-	client.Read()
+	go client.WriteLoop()
+	client.ReadLoop()
 }

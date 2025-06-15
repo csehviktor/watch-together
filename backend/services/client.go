@@ -29,7 +29,7 @@ func NewClient(receiveClient *ReceiveClient, room *Room, ws *websocket.Conn) *cl
 	return newClient
 }
 
-func (c *client) Read() {
+func (c *client) ReadLoop() {
 	defer c.connection.Close()
 
 	for {
@@ -48,7 +48,7 @@ func (c *client) Read() {
 	}
 }
 
-func (c *client) Write() {
+func (c *client) WriteLoop() {
 	defer c.connection.Close()
 
 	for msg := range c.receive {
