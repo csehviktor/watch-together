@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router"
 import { useState } from "react"
-import { useWebsocket } from "../hooks/useWebsocket"
+import { useWebsocket } from "@/hooks/useWebsocket"
 import { ArrowLeft, Copy, Loader2, Users, Wifi, WifiOff } from "lucide-react"
 
 export type ConnectionStatus = "connected" | "connecting" | "error"

@@ -1,8 +1,8 @@
-import type { WebsocketClient } from "../websocket"
+import type { WebsocketClient } from "@/websocket"
 import { useRef, useState } from "react"
-import { useWebsocket } from "../hooks/useWebsocket"
+import { useWebsocket } from "@/hooks/useWebsocket"
 import { Crown, Users } from "lucide-react"
-import { Avatar } from "./Avatar"
+import { Avatar } from "@/components/Avatar"
 
 export function RoomClients() {
     const adminRef = useRef<WebsocketClient | null>(null)

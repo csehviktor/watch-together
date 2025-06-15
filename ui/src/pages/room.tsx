@@ -1,11 +1,11 @@
 import { useParams } from "react-router"
-import { VideoPlayer } from "../components/VideoPlayer"
-import { RoomChat } from "../components/RoomChat"
 import { useEffect, useState } from "react"
-import { closeConnection, initializeConnection } from "../websocket"
-import { RoomHeader, type ConnectionStatus } from "../components/RoomHeader"
-import { RoomClients } from "../components/RoomClients"
-import { useLocalStorage } from "../hooks/useLocalStorage"
+import { closeConnection, initializeConnection } from "@/websocket"
+import { useLocalStorage } from "@/hooks/useLocalStorage"
+import { VideoPlayer } from "@/components/VideoPlayer"
+import { RoomChat } from "@/components/RoomChat"
+import { RoomClients } from "@/components/RoomClients"
+import { RoomHeader, type ConnectionStatus } from "@/components/RoomHeader"
 
 export default function RoomPage() {
     const { client } = useLocalStorage()

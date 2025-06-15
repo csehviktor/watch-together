@@ -1,15 +1,15 @@
-import { closeConnection, initializeConnection } from "../websocket"
+import { closeConnection, initializeConnection } from "@/websocket"
 import { useNavigate } from "react-router"
 import { useRef, useState } from "react"
+import { useLocalStorage } from "@/hooks/useLocalStorage"
+import { Avatar } from "@/components/Avatar"
 import { Play, Users, Camera, Settings, Tv } from "lucide-react"
-import { useLocalStorage } from "../hooks/useLocalStorage"
-import { Avatar } from "../components/Avatar"
 
 export default function HomePage() {
     const navigate = useNavigate()
     const { client, setClient } = useLocalStorage()
 
-    const fileInputRef = useRef<HTMLInputElement | null>(null) 
+    const fileInputRef = useRef<HTMLInputElement | null>(null)
     const [roomCode, setRoomCode] = useState<string>("")
     const [showUserMenu, setShowUserMenu] = useState<boolean>(false)
 
@@ -24,7 +24,7 @@ export default function HomePage() {
             onCodeReceived: (code) => (navigate(`/room/${code}/`)),
             onError: (error) => alert(error),
         }, client)
-        
+
         return () => closeConnection()
     }
 
@@ -45,7 +45,7 @@ export default function HomePage() {
         reader.onload = (e) => setClient(prev => ({ ...prev!, avatar: e.target?.result as string}))
         reader.readAsDataURL(file)
     }
-    
+
     return(
         <div>
             <header className="flex justify-between items-center px-8 py-12">
@@ -69,10 +69,10 @@ export default function HomePage() {
                         <div className="absolute right-0 top-full mt-2 w-64 bg-gray-800/10 backdrop-blur-sm border border-gray-600/40 rounded-lg shadow-xl p-4 z-20 space-y-4">
                             <div>
                                 <label htmlFor="username" className="block text-sm font-semibold text-gray-300 mb-2">Username</label>
-                                <input 
-                                    type="text" 
+                                <input
+                                    type="text"
                                     name="username"
-                                    value={client?.username} 
+                                    value={client?.username}
                                     onChange={(e) => setClient(prev => ({ ...prev!, username: e.target.value }))}
                                     className="w-full bg-gray-700/20 border border-gray-600/60 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
                                     placeholder="enter username"
@@ -90,7 +90,7 @@ export default function HomePage() {
                                     onChange={handleAvatarUpload}
                                     className="hidden"
                                 />
-                                <button 
+                                <button
                                     onClick={() => fileInputRef.current?.click()}
                                     className="w-full flex items-center justify-center space-x-2 bg-gray-700/20 hover:bg-gray-700/30 border border-gray-600/60 rounded-lg px-3 py-2 hover:text-secondary transition-all"
                                 >
@@ -103,7 +103,7 @@ export default function HomePage() {
                 </div>
             </header>
 
-            <main className="px-6 py-12 max-w-7xl mx-auto">
+            <main className="px-6 py-12 max-w-7xl mx-auto min-h-screen">
                 <div className="grid lg:grid-cols-2 gap-16 lg:gap-28 items-center">
                     {/* left section */}
                     <div className="text-center lg:text-left">
@@ -150,7 +150,7 @@ export default function HomePage() {
                                     className="w-full bg-gray-700/20 border border-gray-600/60 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all text-lg"
                                     onKeyDown={(e) => e.key === "Enter" && handleJoinRoom()}
                                 />
-                                <button 
+                                <button
                                     onClick={handleJoinRoom}
                                     disabled={!roomCode.trim() || !client || !client?.username.trim()}
                                     className="cursor-pointer w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-secondary font-semibold py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center space-x-2 text-lg shadow-lg shadow-purple-600/25 disabled:shadow-none"
@@ -174,7 +174,7 @@ export default function HomePage() {
                                 Create a Room
                             </h3>
                             <p className="mb-6">Start a new room and invite your friends to watch together</p>
-                            <button 
+                            <button
                                 onClick={handleCreateRoom}
                                 disabled={!client || !client.username.trim()}
                                 className="cursor-pointer w-full bg-gradient-to-r disabled:bg-none disabled:bg-gray-600 from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-secondary font-semibold py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center space-x-2 text-lg shadow-lg shadow-green-600/25 disabled:shadow-none"
@@ -186,10 +186,6 @@ export default function HomePage() {
                 </div>
             </main>
 
-            <footer>
-
-            </footer>
-
             {/* when user clicks outside user menu */}
             {showUserMenu && (
                 <div onClick={() => {
@@ -197,7 +193,7 @@ export default function HomePage() {
                     localStorage.setItem("username", client!.username)
 
                     if(client?.avatar) localStorage.setItem("avatar", client!.avatar)
-                }} 
+                }}
                 className="fixed inset-0 z-10"></div>
             )}
         </div>

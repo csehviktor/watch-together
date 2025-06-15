@@ -1,8 +1,8 @@
 "use client"
 
-import { sendWebsocketMessage, type WebsocketMessage } from "../websocket"
+import { sendWebsocketMessage, type WebsocketMessage } from "@/websocket"
 import { useEffect, useRef, useState } from "react"
-import { useWebsocket } from "../hooks/useWebsocket"
+import { useWebsocket } from "@/hooks/useWebsocket"
 import { Play, Send } from "lucide-react"
 
 type Command = {
@@ -49,7 +49,7 @@ export function RoomChat() {
         if (value.startsWith("/")) {
             const commandText = value.toLowerCase()
             const filtered = commands.filter(cmd => cmd.name.toLowerCase().startsWith(commandText))
-      
+
             if (filtered.length > 0) {
                 setFilteredCommands(filtered)
                 setShowCommandToolbar(true)
@@ -61,7 +61,7 @@ export function RoomChat() {
     const selectCommand = (command: Command) => {
         setChatMessage(command.usage)
         setShowCommandToolbar(false)
-        
+
         setTimeout(() => {
             if (chatInputRef.current) {
                 chatInputRef.current.focus()
@@ -99,7 +99,7 @@ export function RoomChat() {
         }
     }
 
-    function handleSendMessage() {        
+    function handleSendMessage() {
         if(!chatMessage.trim() || isLoading) return
 
         if(chatMessage.startsWith("/play")) {
@@ -110,8 +110,8 @@ export function RoomChat() {
             }
         } else {
             sendWebsocketMessage("chat", chatMessage)
-        }        
-        
+        }
+
         setChatMessage("")
     }
 
@@ -120,7 +120,7 @@ export function RoomChat() {
     }
 
     useEffect(() => { scrollToBottom() }, [messages])
-    
+
     return(
         <div className="bg-gray-800/10 backdrop-blur-sm border border-gray-700/30 rounded-xl flex flex-col h-full max-h-screen">
             {/* header */}
@@ -131,7 +131,7 @@ export function RoomChat() {
             {/* messages */}
             <div className="overflow-y-auto p-4 space-y-2 h-full min-h-96 max-h-[49.5rem]">
                 { messages.map(message => (
-                    <Message key={message.timestamp} message={message} />) 
+                    <Message key={message.timestamp} message={message} />)
                 )}
                 <div ref={messagesEndRef} />
             </div>
@@ -140,7 +140,7 @@ export function RoomChat() {
             { showCommandToolbar && filteredCommands.length > 0 && (
                 <div className="mx-4 mb-2 bg-gray-800/10 backdrop-brightness-0 border border-gray-600/60 rounded-lg">
                     { filteredCommands.map((command, index) => (
-                        <div 
+                        <div
                             key={command.name}
                             className={`p-3 cursor-pointer transiton-colors ${index === selectedCommandIndex ? "bg-purple-600/40" : "hover:bg-purple-600/40"}`}
                             onClick={() => selectCommand(command)}
@@ -153,9 +153,9 @@ export function RoomChat() {
 
                                     <p className="text-xs mt-1">{ command.description }</p>
                                 </div>
-                                
+
                             </div>
-                        </div>  
+                        </div>
                     ))}
                     <div className="px-3 py-2 bg-gray-700/20 border-t border-gray-600/40">
                         <p className="text-xs text-gray-400">
@@ -172,7 +172,7 @@ export function RoomChat() {
                 <div className="flex items-center jusitfy-between">
                     <input
                         ref={chatInputRef}
-                        type="text" 
+                        type="text"
                         name="message"
                         value={chatMessage}
                         onChange={handleChatInputChange}
@@ -181,10 +181,10 @@ export function RoomChat() {
                         placeholder="Type a message or /play <url>..."
                         className="flex-1 py-4 px-2 focus:outline-none"
                     />
-                    <button 
-                        onClick={handleSendMessage} 
+                    <button
+                        onClick={handleSendMessage}
                         disabled={!chatMessage.trim()}
-                        className="p-2 m-3 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 rounded-lg cursor-pointer" 
+                        className="p-2 m-3 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 rounded-lg cursor-pointer"
                     >
                         <Send className="w-4 h-4 text-white" />
                     </button>
@@ -198,7 +198,7 @@ function Message({ message }: { message: WebsocketMessage }) {
     if(message.type === "error") {
         return <p className="font-medium text-red-300 bg-red-500/30 p-2 rounded-lg">{ message.data }</p>
     }
-    
+
     if(message.sender === null) {
         return <p className="italic">{ message.data }</p>
     }

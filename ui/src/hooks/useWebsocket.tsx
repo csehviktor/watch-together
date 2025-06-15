@@ -1,7 +1,7 @@
 "use client"
 
 import { useStore } from "@nanostores/react"
-import { roomStore } from "../websocket"
+import { roomStore } from "@/websocket"
 import { useEffect, useState } from "react"
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -20,7 +20,7 @@ export function useWebsocket(handlers: Record<string, MessageHandler>) {
             try {
                 const data = JSON.parse(e.data)
                 const handler = handlers[data.type]
-                
+
                 if (handler) handler(data)
             } catch {
                 // ignored
@@ -28,7 +28,7 @@ export function useWebsocket(handlers: Record<string, MessageHandler>) {
         }
 
         $room.connection.addEventListener("message", handleMessage)
-        
+
         return () => {
             $room.connection.removeEventListener("message", handleMessage)
         }

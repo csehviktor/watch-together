@@ -1,6 +1,6 @@
 import { Route, Routes } from "react-router"
-import HomePage from "./pages/home"
-import RoomPage from "./pages/room"
+import HomePage from "@/pages/home"
+import RoomPage from "@/pages/room"
 
 export default function App() {
     return(

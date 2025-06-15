@@ -9,7 +9,7 @@ export function Screensaver() {
         speed: 2
     })
 
-    const [logoColor, setLogoColor] = useState<string>(pallete[0]);
+    const [logoColor, setLogoColor] = useState<string>(pallete[0])
 
     useEffect(() => { setLogoColor(pallete[Math.floor(Math.random() * pallete.length)]) }, [impactCount])
 

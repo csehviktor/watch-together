@@ -1,10 +1,10 @@
 "use client"
 
-import { type Video, sendWebsocketMessage } from "../websocket"
-import { useWebsocket } from "../hooks/useWebsocket"
 import { useRef, useState } from "react"
+import { useWebsocket } from "@/hooks/useWebsocket"
+import { Screensaver } from "@/components/Screensaver"
+import { type Video, sendWebsocketMessage } from "@/websocket"
 import ReactPlayer from "react-player"
-import { Screensaver } from "./Screensaver"
 
 export function VideoPlayer() {
     const lastSeekRef = useRef<number>(0)
