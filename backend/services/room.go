@@ -16,15 +16,15 @@ type Room struct {
 	Code    string           `json:"-"`
 	Admin   *client          `json:"admin"`
 	Video   *video           `json:"video"`
-	join    chan *client     `json:"-"`
-	leave   chan *client     `json:"-"`
+	join    chan *client
+	leave   chan *client
 	forward chan *message
 }
 
 func NewRoom(code string) *Room {
 	newRoom := &Room{
-		Code:    code,
 		Clients: make(map[*client]bool),
+		Code:    code,
 		Admin:   nil,
 		Video:   nil,
 		join:    make(chan *client),
