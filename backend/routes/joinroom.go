@@ -24,9 +24,9 @@ func HandleJoinRoom(ws *websocket.Conn) {
 
 	client := services.NewClient(receiveClient, room, ws)
 
-	room.Join <- client
+	client.Join(room)
 	defer func() {
-		room.Leave <- client
+		client.Leave(room)
 		manager.AttemptRemoveRoom(room)
 	}()
 

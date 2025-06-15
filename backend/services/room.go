@@ -16,8 +16,8 @@ type Room struct {
 	Code    string           `json:"-"`
 	Admin   *client          `json:"admin"`
 	Video   *video           `json:"video"`
-	Join    chan *client     `json:"-"`
-	Leave   chan *client     `json:"-"`
+	join    chan *client     `json:"-"`
+	leave   chan *client     `json:"-"`
 	forward chan *message
 }
 
@@ -27,8 +27,8 @@ func NewRoom(code string) *Room {
 		Clients: make(map[*client]bool),
 		Admin:   nil,
 		Video:   nil,
-		Join:    make(chan *client),
-		Leave:   make(chan *client),
+		join:    make(chan *client),
+		leave:   make(chan *client),
 		forward: make(chan *message),
 	}
 
@@ -38,9 +38,9 @@ func NewRoom(code string) *Room {
 func (r *Room) Run() {
 	for {
 		select {
-		case client := <-r.Join:
+		case client := <-r.join:
 			r.joinClient(client)
-		case client := <-r.Leave:
+		case client := <-r.leave:
 			r.leaveClient(client)
 		case message := <-r.forward:
 			switch message.Type {

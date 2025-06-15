@@ -29,6 +29,14 @@ func NewClient(receiveClient *ReceiveClient, room *Room, ws *websocket.Conn) *cl
 	return newClient
 }
 
+func (c *client) Join(room *Room) {
+	room.join <- c
+}
+
+func (c *client) Leave(room *Room) {
+	room.leave <- c
+}
+
 func (c *client) ReadLoop() {
 	defer c.connection.Close()
 
