@@ -2,7 +2,6 @@ package routes
 
 import (
 	"github.com/csehviktor/watch-together/services"
-	"github.com/csehviktor/watch-together/util"
 	"golang.org/x/net/websocket"
 )
 
@@ -14,9 +13,7 @@ func HandleCreateRoom(ws *websocket.Conn) {
 		return
 	}
 
-	room := services.NewRoom(util.GenerateRoomCode())
-	manager.AddRoom(room)
-
+	room := manager.CreateRoom()
 	ws.Write([]byte(room.Code))
 
 	go room.Run()

@@ -4,40 +4,45 @@ import (
 	"log"
 
 	"github.com/csehviktor/watch-together/services"
+	"github.com/csehviktor/watch-together/util"
 )
 
 type manager struct {
-	rooms map[*services.Room]bool
+	//rooms map[*services.Room]bool
+	rooms map[string]*services.Room
 }
 
 var instance *manager = nil
 
 func Instance() *manager {
+	/*if instance == nil {
+	instance = &manager{rooms: make(map[*services.Room]bool)}
+	}*/
+
 	if instance == nil {
-		instance = &manager{rooms: make(map[*services.Room]bool)}
+		instance = &manager{rooms: make(map[string]*services.Room)}
 	}
 	return instance
 }
 
-func (m *manager) AddRoom(room *services.Room) {
-	m.rooms[room] = true
-	log.Printf("created room: %s", room.Code)
+func (m *manager) CreateRoom() *services.Room {
+	code := util.GenerateRoomCode()
+	room := services.NewRoom(code)
+
+	m.rooms[code] = room
+	log.Printf("created room: %s", code)
+
+	return room
 }
 
 func (m *manager) AttemptRemoveRoom(room *services.Room) {
 	if len(room.Clients)-1 > 0 {
 		return
 	}
-	delete(m.rooms, room)
+	delete(m.rooms, room.Code)
 	log.Printf("deleted room: %s", room.Code)
 }
 
 func (m *manager) GetRoomByCode(code string) *services.Room {
-	for room := range m.rooms {
-		if room.Code == code {
-			return room
-		}
-	}
-
-	return nil
+	return m.rooms[code]
 }
