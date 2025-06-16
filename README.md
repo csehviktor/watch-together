@@ -2,6 +2,9 @@
 
 Synchronized video watching with real-time chat.
 
+[Demo page](https://wt.albert.lol)
+
+
 ## Features
 - [x] YouTube video support
 - [x] Real-time chat
