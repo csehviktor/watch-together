@@ -20,7 +20,7 @@ export default function HomePage() {
     }
 
     const handleCreateRoom = () => {
-        initializeConnection(`${import.meta.env.VITE_WS_ENDPOINT}/createroom/`, {
+        initializeConnection("/createroom/", {
             onCodeReceived: (code) => (navigate(`/room/${code}/`)),
             onError: (error) => alert(error),
         }, client)

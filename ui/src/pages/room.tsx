@@ -14,7 +14,7 @@ export default function RoomPage() {
     const [connection, setConnection] = useState<ConnectionStatus>("connecting")
 
     useEffect(() => {
-        initializeConnection(`${import.meta.env.VITE_WS_ENDPOINT}/joinroom/${code}/`, {
+        initializeConnection(`/joinroom/${code}/`, {
             onConnected: () => setConnection("connected"),
             onError: () => {
                 setConnection("error")
