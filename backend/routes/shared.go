@@ -10,15 +10,15 @@ import (
 
 var manager = m.Instance()
 
-func receiveClientInfo(ws *websocket.Conn) (*services.ReceiveClient, error) {
-	var receiveClient *services.ReceiveClient
+func receiveCredentials(ws *websocket.Conn) (*services.Credentials, error) {
+	var credentials *services.Credentials
 
-	if err := websocket.JSON.Receive(ws, &receiveClient); err != nil {
+	if err := websocket.JSON.Receive(ws, &credentials); err != nil {
 		return nil, err
 	}
-	if receiveClient.Username == "" {
+	if credentials.Username == "" {
 		return nil, errors.New("username is missing")
 	}
 
-	return receiveClient, nil
+	return credentials, nil
 }

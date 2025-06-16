@@ -10,11 +10,16 @@ import (
 	"time"
 )
 
+type RoomSettings struct {
+	MaxClients int `json:"max_clients"`
+}
+
 type Room struct {
 	Clients      map[*client]bool `json:"-"`
 	Code         string           `json:"-"`
 	Admin        *client          `json:"admin"`
 	Video        *video           `json:"video"`
+	Settings     *RoomSettings    `json:"settings"`
 	LastActivity time.Time        `json:"-"`
 	join         chan *client
 	leave        chan *client
@@ -22,12 +27,13 @@ type Room struct {
 	close        chan struct{}
 }
 
-func NewRoom(code string) *Room {
+func NewRoom(code string, settings *RoomSettings) *Room {
 	newRoom := &Room{
 		Clients:      make(map[*client]bool),
 		Code:         code,
 		Admin:        nil,
 		Video:        nil,
+		Settings:     settings,
 		LastActivity: time.Now(),
 		join:         make(chan *client),
 		leave:        make(chan *client),
@@ -48,20 +54,7 @@ func (r *Room) Run() {
 		case client := <-r.leave:
 			r.leaveClient(client)
 		case message := <-r.forward:
-			switch message.Type {
-			case messagePlay:
-				if err := r.playVideo(message.Data); err != nil {
-					message.Sender.receive <- NewErrorMessage(err.Error())
-				}
-			case messageUnpause:
-				r.unpauseVideo()
-			case messagePause:
-				r.pauseVideo()
-			case messageSeek:
-				r.seekTo(message.Data)
-			case messageChat:
-				r.broadcastMessage(message)
-			}
+			r.handleMessage(message)
 		}
 		r.LastActivity = time.Now()
 
@@ -70,17 +63,46 @@ func (r *Room) Run() {
 	}
 }
 
-func (r *Room) ContainsUsername(username string) bool {
+func (r *Room) GetClientByUsername(username string) *client {
 	for client := range r.Clients {
 		if client.Username == username {
-			return true
+			return client
 		}
 	}
-	return false
+	return nil
 }
 
 func (r *Room) Close() {
 	close(r.close)
+}
+
+func (r *Room) handleMessage(message *message) {
+	if message.Admin && message.Sender != r.Admin {
+		message.Sender.receive <- NewErrorMessage("no permission")
+		return
+	}
+
+	switch message.Type {
+	case messageKick:
+		target := r.GetClientByUsername(message.Data)
+		if target == nil {
+			message.Sender.receive <- NewErrorMessage("client not found")
+			return
+		}
+		r.leaveClient(target)
+	case messagePlay:
+		if err := r.playVideo(message.Data); err != nil {
+			message.Sender.receive <- NewErrorMessage(err.Error())
+		}
+	case messageUnpause:
+		r.unpauseVideo()
+	case messagePause:
+		r.pauseVideo()
+	case messageSeek:
+		r.seekTo(message.Data)
+	case messageChat:
+		r.broadcastMessage(message)
+	}
 }
 
 func (r *Room) joinClient(c *client) {
@@ -94,6 +116,7 @@ func (r *Room) joinClient(c *client) {
 
 func (r *Room) leaveClient(c *client) {
 	delete(r.Clients, c)
+	c.connection.Close()
 	r.broadcastRawMessage("client (%s) left the room", c.Username)
 
 	// random client gets to be admin if admin leaves

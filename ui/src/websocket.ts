@@ -20,25 +20,34 @@ export type Video = {
     timestamp: number
 }
 
-export type Room = {
-    connection: WebSocket
-    room: {
-        admin: WebsocketClient | null,
-        users: WebsocketClient[],
-        video: Video | null
-    }
+export type RoomSettings = {
+    max_clients: number
 }
 
-export const roomStore = atom<Room | null>(null)
+export type Room = {
+    settings: RoomSettings,
+    admin: WebsocketClient | null,
+    video: Video | null
+    clients: WebsocketClient[],
+}
+
+export type RoomState = {
+    connection: WebSocket
+    room: Room
+}
+
+export const roomStore = atom<RoomState | null>(null)
 
 type ConnectionCallbacks = {
     onConnected?: () => void
     onCodeReceived?: (code: string) => void
     onError?: (error: string) => void
-    //onDisconnected?: () => void
+    onDisconnected?: () => void
 }
 
-export function initializeConnection(url: string, callbacks: ConnectionCallbacks, client: WebsocketClient | null) {
+export type ConnectionStatus = "connected" | "connecting" | "error" | "disconnected"
+
+export function initializeConnection(url: string, callbacks: ConnectionCallbacks, client: WebsocketClient | null, roomSettings?: RoomSettings) {
     if(roomStore.get()) return
 
     if(!client || !client?.username) {
@@ -52,14 +61,19 @@ export function initializeConnection(url: string, callbacks: ConnectionCallbacks
         roomStore.set({
             connection: ws,
             room: {
+                settings: roomSettings ?? { max_clients: 0 },
                 admin: null,
-                users: [],
+                clients: [],
                 video: null
             }
         })
+        if(roomSettings) ws.send(JSON.stringify(roomSettings))
         ws.send(JSON.stringify(client))
+
         console.log("websocket connected")
     }
+
+    let hasError = false
 
     ws.onmessage = (e: MessageEvent) => {
         const messageData = e.data
@@ -76,6 +90,7 @@ export function initializeConnection(url: string, callbacks: ConnectionCallbacks
 
             if(parsedMessage.type === "error") {
                 callbacks.onError?.(parsedMessage.data)
+                hasError = true
             } else {
                 callbacks.onConnected?.()
             }
@@ -86,6 +101,7 @@ export function initializeConnection(url: string, callbacks: ConnectionCallbacks
 
     ws.onclose = () => {
         closeConnection()
+        if (!hasError) callbacks.onDisconnected?.()
         console.log("websocket disconnected")
     }
 

@@ -8,7 +8,8 @@ import (
 func HandleJoinRoom(ws *websocket.Conn) {
 	defer ws.Close()
 
-	receiveClient, err := receiveClientInfo(ws)
+	// first received message should be user credentials
+	receiveClient, err := receiveCredentials(ws)
 	if err != nil {
 		ws.Write(services.NewErrorMessage(err.Error()).Encode())
 		return
@@ -17,7 +18,8 @@ func HandleJoinRoom(ws *websocket.Conn) {
 	code := ws.Request().PathValue("code")
 
 	room := manager.GetRoomByCode(code)
-	if room == nil || room.ContainsUsername(receiveClient.Username) {
+
+	if room == nil || room.GetClientByUsername(receiveClient.Username) != nil || room.Settings.MaxClients <= len(room.Clients) {
 		ws.Write(services.NewErrorMessage("connecting to room was unsuccessful").Encode())
 		return
 	}

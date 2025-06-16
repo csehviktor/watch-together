@@ -6,24 +6,24 @@ import (
 	"golang.org/x/net/websocket"
 )
 
+type Credentials struct {
+	Username string  `json:"username"`
+	Avatar   *string `json:"avatar"`
+}
+
 type client struct {
-	*ReceiveClient
+	*Credentials
 	connection *websocket.Conn
 	room       *Room
 	receive    chan *message
 }
 
-type ReceiveClient struct {
-	Username string  `json:"username"`
-	Avatar   *string `json:"avatar"`
-}
-
-func NewClient(receiveClient *ReceiveClient, room *Room, ws *websocket.Conn) *client {
+func NewClient(credentials *Credentials, room *Room, ws *websocket.Conn) *client {
 	newClient := &client{
-		ReceiveClient: receiveClient,
-		connection:    ws,
-		room:          room,
-		receive:       make(chan *message),
+		Credentials: credentials,
+		connection:  ws,
+		room:        room,
+		receive:     make(chan *message),
 	}
 
 	return newClient

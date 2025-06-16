@@ -1,9 +1,9 @@
-import { closeConnection, initializeConnection } from "@/websocket"
+import { closeConnection, initializeConnection, RoomSettings } from "@/websocket"
 import { useNavigate } from "react-router"
 import { useRef, useState } from "react"
 import { useLocalStorage } from "@/hooks/useLocalStorage"
 import { Avatar } from "@/components/Avatar"
-import { Play, Users, Camera, Settings, Tv } from "lucide-react"
+import { Play, Users, Camera, Settings, Tv, ChevronUp, ChevronDown } from "lucide-react"
 
 export default function HomePage() {
     const navigate = useNavigate()
@@ -12,6 +12,8 @@ export default function HomePage() {
     const fileInputRef = useRef<HTMLInputElement | null>(null)
     const [roomCode, setRoomCode] = useState<string>("")
     const [showUserMenu, setShowUserMenu] = useState<boolean>(false)
+    const [showRoomSettings, setShowRoomSettings] = useState<boolean>(false);
+    const [roomSettings, setRoomSettings] = useState<RoomSettings>({ max_clients: 10 })
 
     const handleJoinRoom = () => {
         if(roomCode.trim()) {
@@ -23,7 +25,7 @@ export default function HomePage() {
         initializeConnection("/createroom/", {
             onCodeReceived: (code) => (navigate(`/room/${code}/`)),
             onError: (error) => alert(error),
-        }, client)
+        }, client, roomSettings)
 
         return () => closeConnection()
     }
@@ -104,9 +106,9 @@ export default function HomePage() {
             </header>
 
             <main className="px-6 py-12 max-w-7xl mx-auto">
-                <div className="grid lg:grid-cols-2 gap-16 lg:gap-28 items-center">
+                <div className="grid lg:grid-cols-2 gap-16 lg:gap-28 items-start">
                     {/* left section */}
-                    <div className="text-center lg:text-left">
+                    <div className="text-center lg:text-left lg:mt-28">
                         <h2 className="text-5xl lg:text-6xl font-bold text-secondary mb-6 leading-tight">
                             Watch
                             <span className="block text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">
@@ -134,7 +136,6 @@ export default function HomePage() {
 
                     {/* right section */}
                     <div className="space-y-6">
-
                         {/* join room card */}
                         <div className="bg-gray-800/10 backdrop-blur-sm border border-gray-600/30 rounded-2xl p-8">
                             <h3 className="text-2xl font-semibold text-secondary mb-6 flex items-center">
@@ -174,6 +175,51 @@ export default function HomePage() {
                                 Create a Room
                             </h3>
                             <p className="mb-6">Start a new room and invite your friends to watch together</p>
+
+                            {/* room settings section */}
+                            <div className="mb-6">
+                                <button
+                                    onClick={() => setShowRoomSettings(!showRoomSettings)}
+                                    className="w-full flex items-center justify-between bg-gray-700/40 hover:bg-gray-700/60 border border-gray-600/40 rounded-lg px-4 py-3 transition-all duration-200"
+                                >
+                                    <div className="flex items-center space-x-3">
+                                        <Settings className="w-4 h-4 text-gray-400" />
+                                        <span className="text-white font-medium">Room Settings</span>
+                                    </div>
+
+                                    {showRoomSettings ? (
+                                        <ChevronUp className="w-4 h-4 text-gray-400" />
+                                    ) : (
+                                        <ChevronDown className="w-4 h-4 text-gray-400" />
+                                    )}
+                                </button>
+
+                                {showRoomSettings && (
+                                    <div className="mt-4 p-4 bg-gray-700/20 border border-gray-600/20 rounded-lg space-y-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-300 mb-2">
+                                                Maximum Clients
+                                            </label>
+                                            <div className="flex items-center space-x-4">
+                                                <input
+                                                    type="range"
+                                                    min="2"
+                                                    max="20"
+                                                    value={roomSettings.max_clients}
+                                                    onChange={(e) => setRoomSettings({ max_clients: parseInt(e.target.value, 10) })}
+                                                    className="flex-1 h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer slider"
+                                                />
+                                                <div className="flex items-center space-x-2 bg-gray-600/60 rounded-lg px-3 py-1.5 min-w-[80px]">
+                                                    <Users className="w-4 h-4 text-purple-400" />
+                                                    <span className="text-white font-medium">{roomSettings.max_clients}</span>
+                                                </div>
+                                            </div>
+                                            <p className="text-xs text-gray-400 mt-2">Set the maximum number of people who can join your room (2-20)</p>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
                             <button
                                 onClick={handleCreateRoom}
                                 disabled={!client || !client.username.trim()}

@@ -21,9 +21,9 @@ func Instance() *manager {
 	return instance
 }
 
-func (m *manager) CreateRoom() *services.Room {
+func (m *manager) CreateRoom(roomSettings *services.RoomSettings) *services.Room {
 	code := util.GenerateRoomCode()
-	room := services.NewRoom(code)
+	room := services.NewRoom(code, roomSettings)
 
 	m.rooms[code] = room
 	log.Printf("created room: %s", code)

@@ -1,9 +1,8 @@
+import type { ConnectionStatus } from "@/websocket"
 import { useNavigate } from "react-router"
 import { useState } from "react"
 import { useWebsocket } from "@/hooks/useWebsocket"
 import { ArrowLeft, Copy, Loader2, Users, Wifi, WifiOff } from "lucide-react"
-
-export type ConnectionStatus = "connected" | "connecting" | "error"
 
 export function RoomHeader({ code, connection }: { code: string, connection: ConnectionStatus }) {
     const navigate = useNavigate()
@@ -31,6 +30,7 @@ export function RoomHeader({ code, connection }: { code: string, connection: Con
                     bgColor: "bg-yellow-400",
                     icon: <Loader2 className="w-4 h-4 animate-spin" />
                 }
+            case "disconnected":
             case "error":
                 return {
                     text: "disconnected",

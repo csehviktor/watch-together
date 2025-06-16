@@ -3,7 +3,7 @@
 import { sendWebsocketMessage, type WebsocketMessage } from "@/websocket"
 import { useEffect, useRef, useState } from "react"
 import { useWebsocket } from "@/hooks/useWebsocket"
-import { Play, Send } from "lucide-react"
+import { Play, Send, UserX } from "lucide-react"
 
 type Command = {
     name: string,
@@ -11,6 +11,20 @@ type Command = {
     usage: string,
     icon: React.ReactNode,
 }
+
+const commands: Command[] = [
+    {
+        name: "/play",
+        description: "Load and play a video from URL",
+        usage: "/play <url>",
+        icon: <Play className="w-4 h-4" />
+    }, {
+        name: "/kick",
+        description: "Kick a player",
+        usage: "/kick <username>",
+        icon: <UserX className="w-4 h-4" />
+    }
+]
 
 export function RoomChat() {
     const chatInputRef = useRef<HTMLInputElement>(null)
@@ -31,15 +45,6 @@ export function RoomChat() {
             setMessages(prev => [...prev, message])
         }
     })
-
-    const commands: Command[] = [
-        {
-            name: "/play",
-            description: "Load and play a video from URL",
-            usage: "/play <url>",
-            icon: <Play className="w-4 h-4" />
-        }
-    ]
 
     const handleChatInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value
@@ -102,12 +107,13 @@ export function RoomChat() {
     function handleSendMessage() {
         if(!chatMessage.trim() || isLoading) return
 
-        if(chatMessage.startsWith("/play")) {
-            const url = chatMessage.substring(6).trim()
+        if(chatMessage.startsWith("/")) {
+            const message: string[] = chatMessage.split(" ")
 
-            if(url) {
-                sendWebsocketMessage("play", url)
-            }
+            const command = message[0].substring(1).trim()
+            const data = message[1].trim()
+
+            sendWebsocketMessage(command, data)
         } else {
             sendWebsocketMessage("chat", chatMessage)
         }
