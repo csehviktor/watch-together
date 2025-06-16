@@ -73,6 +73,9 @@ func (r *Room) GetClientByUsername(username string) *client {
 }
 
 func (r *Room) Close() {
+	for client := range r.Clients {
+		r.leaveClient(client)
+	}
 	close(r.close)
 }
 
