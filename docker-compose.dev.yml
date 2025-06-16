@@ -1,0 +1,7 @@
+services:
+  watch-together:
+    build: .
+    container_name: watch-together
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
