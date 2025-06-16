@@ -1,6 +1,8 @@
 package routes
 
 import (
+	"errors"
+
 	"github.com/csehviktor/watch-together/services"
 	"golang.org/x/net/websocket"
 )
@@ -9,8 +11,8 @@ func HandleCreateRoom(ws *websocket.Conn) {
 	defer ws.Close()
 
 	// first received message should be room settings
-	var roomSettings *services.RoomSettings
-	if err := websocket.JSON.Receive(ws, &roomSettings); err != nil || roomSettings == nil {
+	roomSettings, err := receiveRoomSettings(ws)
+	if err != nil {
 		ws.Write(services.NewErrorMessage(err.Error()).Encode())
 		return
 	}
@@ -25,4 +27,19 @@ func HandleCreateRoom(ws *websocket.Conn) {
 	ws.Write([]byte(room.Code))
 
 	go room.Run()
+}
+
+func receiveRoomSettings(ws *websocket.Conn) (*services.RoomSettings, error) {
+	var roomSettings *services.RoomSettings
+
+	if err := websocket.JSON.Receive(ws, &roomSettings); err != nil {
+		ws.Write(services.NewErrorMessage(err.Error()).Encode())
+		return nil, err
+	}
+
+	if roomSettings == nil || roomSettings.MaxClients < 2 || roomSettings.MaxClients > 20 {
+		return nil, errors.New("invalid room settings")
+	}
+
+	return roomSettings, nil
 }
