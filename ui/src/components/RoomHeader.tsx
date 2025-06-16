@@ -1,4 +1,4 @@
-import type { ConnectionStatus } from "@/websocket"
+import type { ConnectionStatus, WebsocketClient } from "@/websocket"
 import { useNavigate } from "react-router"
 import { useState } from "react"
 import { useWebsocket } from "@/hooks/useWebsocket"
@@ -9,8 +9,8 @@ export function RoomHeader({ code, connection }: { code: string, connection: Con
     const [clientsLength, setClientsLength] = useState<number>(0)
 
     useWebsocket({
-        room: ({ room: { clients } } : { room: { clients: string[] } }) => {
-            setClientsLength(clients.length)
+        room: ({ room: { clients } } : { room: { clients: Record<string, WebsocketClient> } }) => {
+            setClientsLength(Object.keys(clients).length)
         }
     })
 
