@@ -10,8 +10,10 @@ Synchronized video watching with real-time chat.
 - [x] Real-time chat
 - [x] Video synchronization
 - [x] Username and avatar management
-- [ ] Room settings
-- [ ] Admin actions
+- [x] Room settings
+- [x] Admin actions
+    - [x] Kick
+    - [ ] Play restriction
 - [ ] Queue videos
 - [ ] Support for other video sharing platforms
 
