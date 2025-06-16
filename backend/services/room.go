@@ -1,7 +1,6 @@
 package services
 
 import (
-	"errors"
 	"fmt"
 	"math/rand/v2"
 	"reflect"
@@ -62,10 +61,6 @@ func (r *Room) Run() {
 	}
 }
 
-func (r *Room) GetClientByUsername(username string) *client {
-	return r.Clients[username]
-}
-
 func (r *Room) Close() {
 	for _, client := range r.Clients {
 		r.leaveClient(client)
@@ -81,22 +76,33 @@ func (r *Room) handleMessage(message *message) {
 
 	switch message.Type {
 	case messageKick:
-		target := r.GetClientByUsername(message.Data)
+		target := r.Clients[message.Data]
 		if target == nil {
 			message.Sender.receive <- NewErrorMessage("client not found")
 			return
 		}
 		r.leaveClient(target)
 	case messagePlay:
-		if err := r.playVideo(message.Data); err != nil {
-			message.Sender.receive <- NewErrorMessage(err.Error())
+		video := newVideo(message.Data)
+		if video == nil {
+			message.Sender.receive <- NewErrorMessage("invalid video")
+			return
 		}
+		r.Video = video
 	case messageUnpause:
-		r.unpauseVideo()
+		if r.Video != nil {
+			r.Video.unpauseVideo()
+		}
 	case messagePause:
-		r.pauseVideo()
+		if r.Video != nil {
+			r.Video.pauseVideo()
+		}
 	case messageSeek:
-		r.seekTo(message.Data)
+		timestamp, err := strconv.Atoi(message.Data)
+		if err != nil || r.Video == nil {
+			return
+		}
+		r.Video.seekTo(timestamp)
 	case messageChat:
 		r.broadcastMessage(message)
 	}
@@ -130,36 +136,6 @@ func (r *Room) broadcastMessage(msg *message) {
 
 func (r *Room) broadcastRawMessage(message string, a ...any) {
 	r.broadcastMessage(newMessage(messageChat, nil, fmt.Sprintf(message, a...)))
-}
-
-func (r *Room) playVideo(url string) error {
-	video := newVideo(url)
-	if video == nil {
-		return errors.New("invalid video")
-	}
-
-	r.Video = video
-	return nil
-}
-
-func (r *Room) pauseVideo() {
-	if r.Video != nil {
-		r.Video.pauseVideo()
-	}
-}
-
-func (r *Room) unpauseVideo() {
-	if r.Video != nil {
-		r.Video.unpauseVideo()
-	}
-}
-
-func (r *Room) seekTo(data string) {
-	timestamp, err := strconv.Atoi(data)
-	if err != nil || r.Video == nil {
-		return
-	}
-	r.Video.seekTo(timestamp)
 }
 
 func (r *Room) randomClient() *client {
