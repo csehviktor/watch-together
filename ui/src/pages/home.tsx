@@ -1,4 +1,4 @@
-import { closeConnection, initializeConnection, RoomSettings } from "@/websocket"
+import { closeConnection, initializeConnection, type RoomSettings } from "@/websocket"
 import { useNavigate } from "react-router"
 import { useRef, useState } from "react"
 import { useLocalStorage } from "@/hooks/useLocalStorage"
