@@ -13,7 +13,6 @@ import (
 const defaultAddr = ":3000"
 
 func main() {
-
 	http.HandleFunc("/", serveStaticFiles("ui/dist"))
 	http.Handle("/createroom/", websocket.Handler(routes.HandleCreateRoom))
 	http.Handle("/joinroom/{code}/", websocket.Handler(routes.HandleJoinRoom))
