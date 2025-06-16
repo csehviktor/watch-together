@@ -77,8 +77,8 @@ func (r *Room) handleMessage(message *message) {
 	switch message.Type {
 	case messageKick:
 		target := r.Clients[message.Data]
-		if target == nil {
-			message.Sender.receive <- NewErrorMessage("client not found")
+		if target == nil || target == message.Sender {
+			message.Sender.receive <- NewErrorMessage("cant kick client")
 			return
 		}
 		r.leaveClient(target)
