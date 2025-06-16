@@ -1,6 +1,5 @@
 FROM oven/bun:1 AS ui
 WORKDIR /app
-ENV VITE_WS_ENDPOINT=
 COPY ui/ ./ui
 WORKDIR /app/ui
 RUN bun install

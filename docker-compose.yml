@@ -1,7 +1,7 @@
 services:
-  watch-together:
-    image: ghcr.io/csehviktor/watch-together:main
-    container_name: watch-together
-    restart: unless-stopped
-    ports:
-      - "3000:3000"
+    watch-together:
+        image: ghcr.io/csehviktor/watch-together:main
+        container_name: watch-together
+        restart: unless-stopped
+        ports:
+            - 3000:3000
