@@ -10,28 +10,31 @@ import (
 	"golang.org/x/net/websocket"
 )
 
-const addr = ":3000"
+const defaultAddr = ":3000"
 
 func main() {
+
+	http.HandleFunc("/", serveStaticFiles("ui/dist"))
 	http.Handle("/createroom/", websocket.Handler(routes.HandleCreateRoom))
 	http.Handle("/joinroom/{code}/", websocket.Handler(routes.HandleJoinRoom))
 
-	dist := "ui/dist"
-	fs := http.FileServer(http.Dir(dist))
+	log.Printf("starting socket server on addr %s", defaultAddr)
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		fp := filepath.Join(dist, r.URL.Path)
+	if err := http.ListenAndServe(defaultAddr, nil); err != nil {
+		log.Println(err)
+	}
+}
+
+func serveStaticFiles(distDir string) http.HandlerFunc {
+	fs := http.FileServer(http.Dir(distDir))
+
+	return func(w http.ResponseWriter, r *http.Request) {
+		fp := filepath.Join(distDir, r.URL.Path)
 		if stat, err := os.Stat(fp); err == nil && !stat.IsDir() {
 			fs.ServeHTTP(w, r)
 			return
 		}
 
-		http.ServeFile(w, r, filepath.Join(dist, "index.html"))
-	})
-
-	log.Printf("starting socket server on addr %s", addr)
-
-	if err := http.ListenAndServe(addr, nil); err != nil {
-		log.Println(err)
+		http.ServeFile(w, r, filepath.Join(distDir, "index.html"))
 	}
 }
