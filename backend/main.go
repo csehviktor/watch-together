@@ -20,7 +20,7 @@ func main() {
 	log.Printf("starting socket server on addr %s", defaultAddr)
 
 	if err := http.ListenAndServe(defaultAddr, nil); err != nil {
-		log.Println(err)
+		log.Fatalln(err.Error())
 	}
 }
 
