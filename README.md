@@ -26,9 +26,3 @@ No editing of `.env` or `docker-compose.yml` is required.
 ```bash
 docker compose -f docker-compose.dev.yml up --build
 ```
-
-### Running in production
-
-```bash
-docker compose -f docker-compose.yml up --build
-```
