@@ -1,7 +1,6 @@
 package services
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"math/rand/v2"
@@ -15,12 +14,12 @@ type RoomSettings struct {
 }
 
 type Room struct {
-	Clients      map[*client]bool `json:"-"`
-	Code         string           `json:"-"`
-	Admin        *client          `json:"admin"`
-	Video        *video           `json:"video"`
-	Settings     *RoomSettings    `json:"settings"`
-	LastActivity time.Time        `json:"-"`
+	Clients      map[string]*client `json:"clients"`
+	Code         string             `json:"-"`
+	Admin        *client            `json:"admin"`
+	Video        *video             `json:"video"`
+	Settings     *RoomSettings      `json:"settings"`
+	LastActivity time.Time          `json:"-"`
 	join         chan *client
 	leave        chan *client
 	forward      chan *message
@@ -29,7 +28,7 @@ type Room struct {
 
 func NewRoom(code string, settings *RoomSettings) *Room {
 	newRoom := &Room{
-		Clients:      make(map[*client]bool),
+		Clients:      make(map[string]*client),
 		Code:         code,
 		Admin:        nil,
 		Video:        nil,
@@ -64,16 +63,11 @@ func (r *Room) Run() {
 }
 
 func (r *Room) GetClientByUsername(username string) *client {
-	for client := range r.Clients {
-		if client.Username == username {
-			return client
-		}
-	}
-	return nil
+	return r.Clients[username]
 }
 
 func (r *Room) Close() {
-	for client := range r.Clients {
+	for _, client := range r.Clients {
 		r.leaveClient(client)
 	}
 	close(r.close)
@@ -113,23 +107,23 @@ func (r *Room) joinClient(c *client) {
 	if len(r.Clients) == 0 {
 		r.Admin = c
 	}
-	r.Clients[c] = true
+	r.Clients[c.Username] = c
 	r.broadcastRawMessage("client (%s) joined the room", c.Username)
 }
 
 func (r *Room) leaveClient(c *client) {
-	delete(r.Clients, c)
+	delete(r.Clients, c.Username)
 	c.connection.Close()
 	r.broadcastRawMessage("client (%s) left the room", c.Username)
 
 	// random client gets to be admin if admin leaves
 	if r.Admin == c && len(r.Clients) > 0 {
-		r.Admin = reflect.ValueOf(r.Clients).MapKeys()[rand.IntN(len(r.Clients))].Interface().(*client)
+		r.Admin = r.randomClient()
 	}
 }
 
 func (r *Room) broadcastMessage(msg *message) {
-	for client := range r.Clients {
+	for _, client := range r.Clients {
 		client.receive <- msg
 	}
 }
@@ -168,20 +162,9 @@ func (r *Room) seekTo(data string) {
 	r.Video.seekTo(timestamp)
 }
 
-func (r *Room) MarshalJSON() ([]byte, error) {
-	type Alias Room
+func (r *Room) randomClient() *client {
+	keys := reflect.ValueOf(r.Clients).MapKeys()
+	randomKey := keys[rand.IntN(len(keys))]
 
-	clients := make([]*client, 0, len(r.Clients))
-
-	for client := range r.Clients {
-		clients = append(clients, client)
-	}
-
-	return json.Marshal(&struct {
-		*Alias
-		Clients []*client `json:"clients"`
-	}{
-		Alias:   (*Alias)(r),
-		Clients: clients,
-	})
+	return reflect.ValueOf(r.Clients).MapIndex(randomKey).Interface().(*client)
 }

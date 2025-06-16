@@ -5,12 +5,12 @@ export type WebsocketMessage = {
     data: string
     sender: {
         username: string
-    } | null,
+    } | null
     timestamp: string
 }
 
 export type WebsocketClient = {
-    username: string,
+    username: string
     avatar: string | null
 }
 
@@ -25,10 +25,10 @@ export type RoomSettings = {
 }
 
 export type Room = {
-    settings: RoomSettings,
-    admin: WebsocketClient | null,
+    settings: RoomSettings
+    admin: WebsocketClient | null
     video: Video | null
-    clients: WebsocketClient[],
+    clients: Record<string, WebsocketClient>
 }
 
 export type RoomState = {
@@ -63,7 +63,7 @@ export function initializeConnection(url: string, callbacks: ConnectionCallbacks
             room: {
                 settings: roomSettings ?? { max_clients: 0 },
                 admin: null,
-                clients: [],
+                clients: {},
                 video: null
             }
         })
