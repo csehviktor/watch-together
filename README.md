@@ -17,7 +17,7 @@ Synchronized video watching with real-time chat.
 
 ## Run
 
-Make sure you have Docker installed and Docker Compose installed.
+Make sure you have Docker and Docker Compose installed.
 
 No editing of `.env` or `docker-compose.yml` is required.
 
