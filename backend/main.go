@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/csehviktor/watch-together/manager"
 	"github.com/csehviktor/watch-together/routes"
 	"golang.org/x/net/websocket"
 )
@@ -13,6 +14,8 @@ import (
 const defaultAddr = ":3000"
 
 func main() {
+	go manager.DeleteRoomCronjob()
+
 	http.HandleFunc("/", serveStaticFiles("ui/dist"))
 	http.Handle("/createroom/", websocket.Handler(routes.HandleCreateRoom))
 	http.Handle("/joinroom/{code}/", websocket.Handler(routes.HandleJoinRoom))

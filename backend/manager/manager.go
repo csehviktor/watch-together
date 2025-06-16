@@ -21,6 +21,22 @@ func Instance() *manager {
 	return instance
 }
 
+func DeleteRoomCronjob() {
+	manager := Instance()
+
+	ticker := time.NewTicker(3 * time.Minute)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ticker.C:
+			for _, room := range manager.rooms {
+				manager.attemptRemoveRoom(room)
+			}
+		}
+	}
+}
+
 func (m *manager) CreateRoom(roomSettings *services.RoomSettings) *services.Room {
 	code := util.GenerateRoomCode()
 	room := services.NewRoom(code, roomSettings)
@@ -31,9 +47,9 @@ func (m *manager) CreateRoom(roomSettings *services.RoomSettings) *services.Room
 	return room
 }
 
-func (m *manager) AttemptRemoveRoom(room *services.Room) {
-	// return if more than 0 users, or last activity was less than 10 minutes ago
-	if len(room.Clients)-1 > 0 || time.Since(room.LastActivity) < 10*time.Minute {
+func (m *manager) attemptRemoveRoom(room *services.Room) {
+	// return if more than 0 users, or last activity was less than 3 minutes ago
+	if len(room.Clients) > 0 || time.Since(room.LastActivity) < 3*time.Minute {
 		return
 	}
 	delete(m.rooms, room.Code)
