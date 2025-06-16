@@ -92,14 +92,12 @@ export function initializeConnection(url: string, callbacks: ConnectionCallbacks
     return () => ws.close()
 }
 
-
 export function closeConnection() {
     const room = roomStore.get()
 
     room?.connection.close()
     roomStore.set(null)
 }
-
 
 export function sendWebsocketMessage(type: string, data?: string): void {
     const currRoom = roomStore.get()
