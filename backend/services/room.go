@@ -7,29 +7,32 @@ import (
 	"math/rand/v2"
 	"reflect"
 	"strconv"
-
-	"github.com/csehviktor/watch-together/util"
+	"time"
 )
 
 type Room struct {
-	Clients map[*client]bool `json:"-"`
-	Code    string           `json:"-"`
-	Admin   *client          `json:"admin"`
-	Video   *video           `json:"video"`
-	join    chan *client
-	leave   chan *client
-	forward chan *message
+	Clients      map[*client]bool `json:"-"`
+	Code         string           `json:"-"`
+	Admin        *client          `json:"admin"`
+	Video        *video           `json:"video"`
+	LastActivity time.Time        `json:"-"`
+	join         chan *client
+	leave        chan *client
+	forward      chan *message
+	close        chan struct{}
 }
 
 func NewRoom(code string) *Room {
 	newRoom := &Room{
-		Clients: make(map[*client]bool),
-		Code:    code,
-		Admin:   nil,
-		Video:   nil,
-		join:    make(chan *client),
-		leave:   make(chan *client),
-		forward: make(chan *message),
+		Clients:      make(map[*client]bool),
+		Code:         code,
+		Admin:        nil,
+		Video:        nil,
+		LastActivity: time.Now(),
+		join:         make(chan *client),
+		leave:        make(chan *client),
+		forward:      make(chan *message),
+		close:        make(chan struct{}),
 	}
 
 	return newRoom
@@ -38,6 +41,8 @@ func NewRoom(code string) *Room {
 func (r *Room) Run() {
 	for {
 		select {
+		case <-r.close:
+			return
 		case client := <-r.join:
 			r.joinClient(client)
 		case client := <-r.leave:
@@ -58,6 +63,8 @@ func (r *Room) Run() {
 				r.broadcastMessage(message)
 			}
 		}
+		r.LastActivity = time.Now()
+
 		// broadcast room state on every interaction
 		r.broadcastMessage(newMessage(messageRoomState, nil, r))
 	}
@@ -70,6 +77,10 @@ func (r *Room) ContainsUsername(username string) bool {
 		}
 	}
 	return false
+}
+
+func (r *Room) Close() {
+	close(r.close)
 }
 
 func (r *Room) joinClient(c *client) {
@@ -102,13 +113,12 @@ func (r *Room) broadcastRawMessage(message string, a ...any) {
 }
 
 func (r *Room) playVideo(url string) error {
-	if !util.IsYoutubeVideo(url) {
+	video := newVideo(url)
+	if video == nil {
 		return errors.New("invalid video")
 	}
 
-	if video := newVideo(url); video != nil {
-		r.Video = video
-	}
+	r.Video = video
 	return nil
 }
 

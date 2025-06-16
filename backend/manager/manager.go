@@ -2,6 +2,7 @@ package manager
 
 import (
 	"log"
+	"time"
 
 	"github.com/csehviktor/watch-together/services"
 	"github.com/csehviktor/watch-together/util"
@@ -31,10 +32,13 @@ func (m *manager) CreateRoom() *services.Room {
 }
 
 func (m *manager) AttemptRemoveRoom(room *services.Room) {
-	if len(room.Clients)-1 > 0 {
+	// return if more than 0 users, or last activity was less than 10 minutes ago
+	if len(room.Clients)-1 > 0 || time.Since(room.LastActivity) < 10*time.Minute {
 		return
 	}
 	delete(m.rooms, room.Code)
+	room.Close()
+
 	log.Printf("deleted room: %s", room.Code)
 }
 
