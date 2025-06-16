@@ -8,17 +8,12 @@ import (
 )
 
 type manager struct {
-	//rooms map[*services.Room]bool
 	rooms map[string]*services.Room
 }
 
 var instance *manager = nil
 
 func Instance() *manager {
-	/*if instance == nil {
-	instance = &manager{rooms: make(map[*services.Room]bool)}
-	}*/
-
 	if instance == nil {
 		instance = &manager{rooms: make(map[string]*services.Room)}
 	}
