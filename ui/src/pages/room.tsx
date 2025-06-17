@@ -33,7 +33,7 @@ export default function RoomPage() {
 
             <main className="w-full px-4 sm:px-6 py-6">
                 <div className="grid xl:grid-cols-4 gap-6">
-                    <div className="xl:col-span-3 space-y-4 overflow-hidden">
+                    <div className="xl:col-span-3 space-y-4">
                         <VideoPlayer />
                         <RoomClients />
                     </div>

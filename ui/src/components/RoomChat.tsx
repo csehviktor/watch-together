@@ -130,8 +130,8 @@ export function RoomChat() {
     return(
         <div className="bg-gray-800/10 backdrop-blur-sm border border-gray-700/30 rounded-xl flex flex-col h-full max-h-screen">
             {/* header */}
-            <div className="p-4 border-b border-gray-700/30 text-center">
-                <h3 className="text-white font-bold">CHAT</h3>
+            <div className="p-4 border-b border-gray-700/30 text-center flex-shrink-0">
+                <h3 className="text-secondary font-bold">CHAT</h3>
             </div>
 
             {/* messages */}
@@ -144,7 +144,7 @@ export function RoomChat() {
 
             {/* command toolbar */}
             { showCommandToolbar && filteredCommands.length > 0 && (
-                <div className="mx-4 mb-2 bg-gray-800/10 backdrop-brightness-0 border border-gray-600/60 rounded-lg">
+                <div className="absolute bottom-16 left-0 right-0 mx-2 bg-gray-800/10 backdrop-brightness-0 border border-gray-600/60 rounded-lg z-10">
                     { filteredCommands.map((command, index) => (
                         <div
                             key={command.name}
@@ -174,8 +174,8 @@ export function RoomChat() {
             )}
 
             {/* send message input */}
-            <div className="p-1 border-t border-gray-700/30">
-                <div className="flex items-center jusitfy-between">
+            <div className="p-1 border-t border-gray-700/30 flex-shrink-0">
+                <div className="flex items-center justify-between">
                     <input
                         ref={chatInputRef}
                         type="text"
@@ -190,9 +190,9 @@ export function RoomChat() {
                     <button
                         onClick={handleSendMessage}
                         disabled={!chatMessage.trim()}
-                        className="p-2 m-3 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 rounded-lg cursor-pointer"
+                        className="p-2 mr-3 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 rounded-lg cursor-pointer"
                     >
-                        <Send className="w-4 h-4 text-white" />
+                        <Send className="w-4 h-4 text-secondary" />
                     </button>
                 </div>
             </div>

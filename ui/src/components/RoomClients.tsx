@@ -30,8 +30,6 @@ export function RoomClients() {
                     </div>
                 ))}
             </div>
-
-
         </div>
     )
 }
