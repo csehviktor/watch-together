@@ -3,7 +3,7 @@ import { useNavigate } from "react-router"
 import { useRef, useState } from "react"
 import { useLocalStorage } from "@/hooks/useLocalStorage"
 import { Avatar } from "@/components/Avatar"
-import { Play, Users, Camera, Settings, Tv, ChevronUp, ChevronDown } from "lucide-react"
+import { Play, Users, Camera, Settings, Tv, ChevronUp, ChevronDown, Github } from "lucide-react"
 
 export default function HomePage() {
     const navigate = useNavigate()
@@ -13,7 +13,7 @@ export default function HomePage() {
     const [roomCode, setRoomCode] = useState<string>("")
     const [showUserMenu, setShowUserMenu] = useState<boolean>(false)
     const [showRoomSettings, setShowRoomSettings] = useState<boolean>(false);
-    const [roomSettings, setRoomSettings] = useState<RoomSettings>({ max_clients: 10 })
+    const [roomSettings, setRoomSettings] = useState<RoomSettings>({ max_clients: 10, admin_play_restriction: false })
 
     const handleJoinRoom = () => {
         if(roomCode.trim()) {
@@ -184,7 +184,7 @@ export default function HomePage() {
                                 >
                                     <div className="flex items-center space-x-3">
                                         <Settings className="w-4 h-4 text-gray-400" />
-                                        <span className="text-white font-medium">Room Settings</span>
+                                        <span className="text-secondary font-medium">Room Settings</span>
                                     </div>
 
                                     {showRoomSettings ? (
@@ -197,7 +197,7 @@ export default function HomePage() {
                                 {showRoomSettings && (
                                     <div className="mt-4 p-4 bg-gray-700/20 border border-gray-600/20 rounded-lg space-y-4">
                                         <div>
-                                            <label className="block text-sm font-medium text-gray-300 mb-2">
+                                            <label className="block text-sm font-semibold">
                                                 Maximum Clients
                                             </label>
                                             <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 space-x-4">
@@ -206,7 +206,7 @@ export default function HomePage() {
                                                     min="2"
                                                     max="20"
                                                     value={roomSettings.max_clients}
-                                                    onChange={(e) => setRoomSettings({ max_clients: parseInt(e.target.value, 10) })}
+                                                    onChange={(e) => setRoomSettings(prev => ({ ...prev, max_clients: parseInt(e.target.value, 10) }))}
                                                     className="flex-1 w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
                                                 />
                                                 <div className="flex items-center space-x-2 bg-gray-600/60 rounded-lg px-3 py-1.5 ">
@@ -215,6 +215,29 @@ export default function HomePage() {
                                                 </div>
                                             </div>
                                             <p className="text-xs text-gray-400 mt-2">Set the maximum number of people who can join your room (2-20)</p>
+                                        </div>
+
+                                        <div className="mt-8">
+                                            <label className="block text-sm font-semibold">
+                                                Video Control
+                                            </label>
+                                            <div className="flex items-start justify-between py-3">
+                                                <div className="flex-1">
+                                                    <div className="flex items-center space-x-3 mr-4">
+                                                        <Play className="w-4 h-4 text-green-400" />
+                                                        <span className="text-white font-medium word-wrap">Only admin can play video</span>
+                                                    </div>
+                                                    <p className="text-xs text-secondary/70 mt-5">
+                                                        When enabled, only the room creator can control video playback
+                                                    </p>
+                                                </div>
+                                                <button
+                                                    onClick={() => setRoomSettings(prev => ({ ...prev, admin_play_restriction: !prev.admin_play_restriction }))}
+                                                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-gray-800 ${roomSettings.admin_play_restriction ? 'bg-purple-600' : 'bg-gray-600'}`}
+                                                >
+                                                    <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${roomSettings.admin_play_restriction ? 'translate-x-6' : 'translate-x-1'}`} />
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 )}
@@ -231,6 +254,22 @@ export default function HomePage() {
                     </div>
                 </div>
             </main>
+
+            <footer className="px-6 py-8 mt-16 max-w-6xl mx-auto">
+                <div className="flex items-center space-x-6">
+                    <p className="text-gray-400 text-center">Built for seamless entertainment experiences</p>
+                    <div className="w-px h-4 bg-gray-600"></div>
+                        <a
+                            href="https://github.com/csehviktor/watch-together"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors group"
+                        >
+                            <Github className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                            <span className="text-sm font-medium">View Source</span>
+                        </a>
+                    </div>
+            </footer>
 
             {/* when user clicks outside user menu */}
             {showUserMenu && (

@@ -26,7 +26,6 @@ type receiveMessage struct {
 
 type message struct {
 	receiveMessage
-	Admin     bool      `json:"admin"`
 	Sender    *client   `json:"sender"`
 	Timestamp time.Time `json:"timestamp"`
 }
@@ -36,7 +35,6 @@ func newMessage(msgType messageType, sender *client, data any) *message {
 		receiveMessage: receiveMessage{
 			Type: msgType,
 		},
-		Admin:     msgType == "kick",
 		Sender:    sender,
 		Timestamp: time.Now(),
 	}

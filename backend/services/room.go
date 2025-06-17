@@ -9,7 +9,8 @@ import (
 )
 
 type RoomSettings struct {
-	MaxClients int `json:"max_clients"`
+	MaxClients           int  `json:"max_clients"`
+	AdminPlayRestriction bool `json:"admin_play_restriction"`
 }
 
 type Room struct {
@@ -68,46 +69,6 @@ func (r *Room) Close() {
 	close(r.close)
 }
 
-func (r *Room) handleMessage(message *message) {
-	if message.Admin && message.Sender != r.Admin {
-		message.Sender.receive <- NewErrorMessage("no permission")
-		return
-	}
-
-	switch message.Type {
-	case messageKick:
-		target := r.Clients[message.Data]
-		if target == nil || target == message.Sender {
-			message.Sender.receive <- NewErrorMessage("cant kick client")
-			return
-		}
-		r.leaveClient(target)
-	case messagePlay:
-		video := newVideo(message.Data)
-		if video == nil {
-			message.Sender.receive <- NewErrorMessage("invalid video")
-			return
-		}
-		r.Video = video
-	case messageUnpause:
-		if r.Video != nil {
-			r.Video.unpauseVideo()
-		}
-	case messagePause:
-		if r.Video != nil {
-			r.Video.pauseVideo()
-		}
-	case messageSeek:
-		timestamp, err := strconv.Atoi(message.Data)
-		if err != nil || r.Video == nil {
-			return
-		}
-		r.Video.seekTo(timestamp)
-	case messageChat:
-		r.broadcastMessage(message)
-	}
-}
-
 func (r *Room) joinClient(c *client) {
 	// first one to join room gets to be admin
 	if len(r.Clients) == 0 {
@@ -143,4 +104,73 @@ func (r *Room) randomClient() *client {
 	randomKey := keys[rand.IntN(len(keys))]
 
 	return reflect.ValueOf(r.Clients).MapIndex(randomKey).Interface().(*client)
+}
+
+func (r *Room) handleMessage(msg *message) {
+	switch msg.Type {
+	case messageKick:
+		r.handleKickMessage(msg)
+	case messagePlay:
+		r.handlePlayMessage(msg)
+	case messageUnpause:
+		r.handleUnpauseMessage()
+	case messagePause:
+		r.handlePauseMessage()
+	case messageSeek:
+		r.handleSeekMessage(msg)
+	case messageChat:
+		r.broadcastMessage(msg)
+	}
+}
+
+func (r *Room) handleKickMessage(msg *message) {
+	if msg.Sender != r.Admin {
+		msg.Sender.receive <- NewErrorMessage("no permission")
+		return
+	}
+
+	target := r.Clients[msg.Data]
+	if target == nil || target == msg.Sender {
+		msg.Sender.receive <- NewErrorMessage("can't kick client")
+		return
+	}
+	r.leaveClient(target)
+}
+
+func (r *Room) handlePlayMessage(msg *message) {
+	if r.Settings.AdminPlayRestriction && msg.Sender != r.Admin {
+		msg.Sender.receive <- NewErrorMessage("no permission")
+		return
+	}
+
+	video := newVideo(msg.Data)
+	if video == nil {
+		msg.Sender.receive <- NewErrorMessage("invalid video")
+		return
+	}
+	r.Video = video
+}
+
+func (r *Room) handleUnpauseMessage() {
+	if r.Video != nil {
+		r.Video.unpauseVideo()
+	}
+}
+
+func (r *Room) handlePauseMessage() {
+	if r.Video != nil {
+		r.Video.pauseVideo()
+	}
+}
+
+func (r *Room) handleSeekMessage(msg *message) {
+	if r.Video == nil {
+		return
+	}
+
+	timestamp, err := strconv.Atoi(msg.Data)
+	if err != nil {
+		return
+	}
+	r.Video.seekTo(timestamp)
 }

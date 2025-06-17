@@ -22,6 +22,7 @@ export type Video = {
 
 export type RoomSettings = {
     max_clients: number
+    admin_play_restriction: boolean
 }
 
 export type Room = {
@@ -61,7 +62,7 @@ export function initializeConnection(url: string, callbacks: ConnectionCallbacks
         roomStore.set({
             connection: ws,
             room: {
-                settings: roomSettings ?? { max_clients: 0 },
+                settings: roomSettings ?? { max_clients: 0, admin_play_restriction: false },
                 admin: null,
                 clients: {},
                 video: null
