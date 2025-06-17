@@ -137,7 +137,7 @@ export default function HomePage() {
                     {/* right section */}
                     <div className="space-y-6">
                         {/* join room card */}
-                        <div className="bg-gray-800/10 backdrop-blur-sm border border-gray-600/30 rounded-2xl p-8">
+                        <div className="bg-gray-800/10 backdrop-blur-sm border border-gray-600/30 rounded-2xl p-6">
                             <h3 className="text-2xl font-semibold text-secondary mb-6 flex items-center">
                                 <Users className="w-6 h-6 mr-3 text-purple-400" />
                                 Join a Room
@@ -169,7 +169,7 @@ export default function HomePage() {
                         </div>
 
                         {/* create room card */}
-                        <div className="bg-gray-800/10 backdrop-blur-sm border border-gray-600/30 rounded-2xl p-8">
+                        <div className="bg-gray-800/10 backdrop-blur-sm border border-gray-600/30 rounded-2xl p-6">
                             <h3 className="text-2xl font-semibold text-secondary mb-6 flex items-center">
                                 <Play className="w-6 h-6 mr-3 text-green-400" />
                                 Create a Room
@@ -200,16 +200,16 @@ export default function HomePage() {
                                             <label className="block text-sm font-medium text-gray-300 mb-2">
                                                 Maximum Clients
                                             </label>
-                                            <div className="flex items-center space-x-4">
+                                            <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 space-x-4">
                                                 <input
                                                     type="range"
                                                     min="2"
                                                     max="20"
                                                     value={roomSettings.max_clients}
                                                     onChange={(e) => setRoomSettings({ max_clients: parseInt(e.target.value, 10) })}
-                                                    className="flex-1 h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer slider"
+                                                    className="flex-1 w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
                                                 />
-                                                <div className="flex items-center space-x-2 bg-gray-600/60 rounded-lg px-3 py-1.5 min-w-[80px]">
+                                                <div className="flex items-center space-x-2 bg-gray-600/60 rounded-lg px-3 py-1.5 ">
                                                     <Users className="w-4 h-4 text-purple-400" />
                                                     <span className="text-white font-medium">{roomSettings.max_clients}</span>
                                                 </div>

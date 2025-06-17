@@ -75,7 +75,7 @@ export function RoomHeader({ code, connection }: { code: string, connection: Con
                         </div>
                         <div className="flex items-center space-x-1 text-xs">
                             <span className={`${statusInfo.color}`}>{statusInfo.icon}</span>
-                            <span className={`text-sm font-medium ${statusInfo.color}`}>{statusInfo.text}</span>
+                            <span className={`text-sm font-medium ${statusInfo.color} hidden sm:block`}>{statusInfo.text}</span>
                         </div>
                     </div>
 
