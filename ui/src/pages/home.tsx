@@ -211,7 +211,7 @@ export default function HomePage() {
                                                 />
                                                 <div className="flex items-center space-x-2 bg-gray-600/60 rounded-lg px-3 py-1.5 ">
                                                     <Users className="w-4 h-4 text-purple-400" />
-                                                    <span className="text-white font-medium">{roomSettings.max_clients}</span>
+                                                    <span className="text-secondary font-medium">{roomSettings.max_clients}</span>
                                                 </div>
                                             </div>
                                             <p className="text-xs text-gray-400 mt-2">Set the maximum number of people who can join your room (2-20)</p>
@@ -225,7 +225,7 @@ export default function HomePage() {
                                                 <div className="flex-1">
                                                     <div className="flex items-center space-x-3 mr-4">
                                                         <Play className="w-4 h-4 text-green-400" />
-                                                        <span className="text-white font-medium word-wrap">Only admin can play video</span>
+                                                        <span className="text-secondary font-medium word-wrap">Only admin can play video</span>
                                                     </div>
                                                     <p className="text-xs text-secondary/70 mt-5">
                                                         When enabled, only the room creator can control video playback
@@ -255,20 +255,15 @@ export default function HomePage() {
                 </div>
             </main>
 
-            <footer className="px-6 py-8 mt-16 max-w-6xl mx-auto">
-                <div className="flex items-center space-x-6">
-                    <p className="text-gray-400 text-center">Built for seamless entertainment experiences</p>
+            <footer className="px-6 py-8 mt-20 max-w-6xl mx-auto">
+                <div className="flex justify-center items-center space-x-6 text-sm">
+                    <p className="text-gray-400 text-center">Contribute or deploy your own instance</p>
                     <div className="w-px h-4 bg-gray-600"></div>
-                        <a
-                            href="https://github.com/csehviktor/watch-together"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors group"
-                        >
-                            <Github className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                            <span className="text-sm font-medium">View Source</span>
-                        </a>
-                    </div>
+                    <a href="https://github.com/csehviktor/watch-together" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 text-gray-400 hover:text-secondary transition-colors group">
+                        <Github className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                        <span className="font-medium">View source</span>
+                    </a>
+                </div>
             </footer>
 
             {/* when user clicks outside user menu */}

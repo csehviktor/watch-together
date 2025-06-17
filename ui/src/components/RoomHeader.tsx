@@ -53,7 +53,7 @@ export function RoomHeader({ code, connection }: { code: string, connection: Con
                 <div className="flex items-center space-x-3">
                     { /* back button */}
                     <button onClick={() => navigate("/")} className="p-2 hover:bg-gray-700/40 rounded-lg transition-colors">
-                        <ArrowLeft className="w-5 h-5 text-gray-400 hover:text-white" />
+                        <ArrowLeft className="w-5 h-5 text-gray-400 hover:text-secondary" />
                     </button>
 
                     { /* room code */}
@@ -61,7 +61,7 @@ export function RoomHeader({ code, connection }: { code: string, connection: Con
                     <div className="flex items-center space-x-2 bg-gray-800/20 rounded-lg px-3 py-1.5">
                         <span className="text-purple-400 font-mono text-sm">{code}</span>
                         <button onClick={copyRoomCode} className="p-1 hover:bg-gray-800/60 rounded transition-colors cursor-pointer">
-                            <Copy className="w-3 h-3 text-gray-400 hover:text-white" />
+                            <Copy className="w-3 h-3 text-gray-400 hover:text-secondary" />
                         </button>
                     </div>
                 </div>

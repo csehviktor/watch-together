@@ -12,7 +12,7 @@ export function Avatar({ client, width, height }: { client: WebsocketClient | nu
                 height: height * 4,
             }}
         >
-            { !client?.avatar && <span className="text-xs font-semibold text-white"> { client?.username.charAt(0).toUpperCase() }</span> }
+            { !client?.avatar && <span className="text-xs font-semibold text-secondary"> { client?.username.charAt(0).toUpperCase() }</span> }
         </div>
     )
 }
