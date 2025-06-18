@@ -56,7 +56,7 @@ export function initializeConnection(url: string, callbacks: ConnectionCallbacks
         return
     }
 
-    const ws = new WebSocket(url)
+    const ws = new WebSocket(import.meta.env.DEV ? `ws://localhost:3000${url}` : url)
 
     ws.onopen = () => {
         roomStore.set({

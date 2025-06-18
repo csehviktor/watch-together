@@ -19,6 +19,7 @@ func main() {
 	http.HandleFunc("/", serveStaticFiles("ui/dist"))
 	http.Handle("/createroom/", websocket.Handler(routes.HandleCreateRoom))
 	http.Handle("/joinroom/{code}/", websocket.Handler(routes.HandleJoinRoom))
+	http.Handle("/checkroom/{code}/", http.HandlerFunc(routes.HandleCheckRoom))
 
 	log.Printf("starting socket server on addr %s", defaultAddr)
 

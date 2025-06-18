@@ -3,7 +3,7 @@ import { useNavigate } from "react-router"
 import { useRef, useState } from "react"
 import { useLocalStorage } from "@/hooks/useLocalStorage"
 import { Avatar } from "@/components/Avatar"
-import { Play, Users, Camera, Settings, Tv, ChevronUp, ChevronDown, Github } from "lucide-react"
+import { Play, Users, Camera, Settings, Tv, ChevronUp, ChevronDown, Github, Loader2 } from "lucide-react"
 
 export default function HomePage() {
     const navigate = useNavigate()
@@ -12,12 +12,35 @@ export default function HomePage() {
     const fileInputRef = useRef<HTMLInputElement | null>(null)
     const [roomCode, setRoomCode] = useState<string>("")
     const [showUserMenu, setShowUserMenu] = useState<boolean>(false)
-    const [showRoomSettings, setShowRoomSettings] = useState<boolean>(false);
+    const [showRoomSettings, setShowRoomSettings] = useState<boolean>(false)
     const [roomSettings, setRoomSettings] = useState<RoomSettings>({ max_clients: 10, admin_play_restriction: false })
+    const [isChecking, setIsChecking] = useState(false)
+    const [joinError, setJoinError] = useState<string | null>(null)
 
-    const handleJoinRoom = () => {
-        if(roomCode.trim()) {
-            navigate(`/room/${roomCode.trim()}/`)
+    const handleJoinRoom = async () => {
+        const code = roomCode.trim()
+        if (!code || isChecking) {
+            return
+        }
+
+        setIsChecking(true)
+        setJoinError(null)
+
+        const api = import.meta.env.DEV ? 'http://localhost:3000' : ''
+
+        try {
+            const response = await fetch(`${api}/checkroom/${code}/`)
+
+            if (response.ok) {
+                navigate(`/room/${code}/`)
+            } else {
+                setJoinError("Room not found.")
+            }
+        } catch (error) {
+            console.error("Failed to check room:", error)
+            setJoinError("Could not connect to server.")
+        } finally {
+            setIsChecking(false)
         }
     }
 
@@ -33,22 +56,22 @@ export default function HomePage() {
     const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0]
 
-        if(!file || !file.type.startsWith("image/")) {
+        if (!file || !file.type.startsWith("image/")) {
             alert("invalid file type")
             return
         }
 
-        if(file.size > 5 * 1024 * 1024) {
+        if (file.size > 5 * 1024 * 1024) {
             alert("file is too large")
             return
         }
 
         const reader = new FileReader()
-        reader.onload = (e) => setClient(prev => ({ ...prev!, avatar: e.target?.result as string}))
+        reader.onload = (e) => setClient(prev => ({ ...prev!, avatar: e.target?.result as string }))
         reader.readAsDataURL(file)
     }
 
-    return(
+    return (
         <div>
             <header className="flex justify-between items-center px-8 py-12">
                 {/* logo meg vmi iras */}
@@ -67,7 +90,7 @@ export default function HomePage() {
                         <Settings className="w-4 h-4 text-slate-400 group-hover:text-secondary transition-colors" />
                     </button>
 
-                    { showUserMenu && (
+                    {showUserMenu && (
                         <div className="absolute right-0 top-full mt-2 w-64 bg-gray-800/10 backdrop-blur-sm border border-gray-600/40 rounded-lg shadow-xl p-4 z-20 space-y-4">
                             <div>
                                 <label htmlFor="username" className="block text-sm font-semibold text-gray-300 mb-2">Username</label>
@@ -146,18 +169,31 @@ export default function HomePage() {
                                 <input
                                     type="text"
                                     value={roomCode}
-                                    onChange={(e) => setRoomCode(e.target.value)}
+                                    onChange={(e) => {
+                                        setRoomCode(e.target.value)
+                                        setJoinError(null)
+                                    }}
                                     placeholder="enter room code"
                                     className="w-full bg-gray-700/20 border border-gray-600/60 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all text-lg"
                                     onKeyDown={(e) => e.key === "Enter" && handleJoinRoom()}
                                 />
                                 <button
                                     onClick={handleJoinRoom}
-                                    disabled={!roomCode.trim() || !client || !client?.username.trim()}
+                                    disabled={!roomCode.trim() || !client || !client?.username.trim() || isChecking}
                                     className="cursor-pointer w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-secondary font-semibold py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center space-x-2 text-lg shadow-lg shadow-purple-600/25 disabled:shadow-none"
                                 >
-                                    Join room
+                                    {isChecking ? (
+                                        <>
+                                            <Loader2 className="w-5 h-5 animate-spin" />
+                                            <span>Checking...</span>
+                                        </>
+                                    ) : (
+                                        "Join room"
+                                    )}
                                 </button>
+                                {joinError && (
+                                    <p className="text-sm text-center text-red-400">{joinError}</p>
+                                )}
                             </div>
                         </div>
 
@@ -272,9 +308,9 @@ export default function HomePage() {
                     setShowUserMenu(false)
                     localStorage.setItem("username", client!.username)
 
-                    if(client?.avatar) localStorage.setItem("avatar", client!.avatar)
+                    if (client?.avatar) localStorage.setItem("avatar", client!.avatar)
                 }}
-                className="fixed inset-0 z-10"></div>
+                    className="fixed inset-0 z-10"></div>
             )}
         </div>
     )

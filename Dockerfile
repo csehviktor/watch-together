@@ -5,7 +5,6 @@ WORKDIR /app/ui
 RUN bun install
 RUN bun run build
 
-
 FROM golang:1.24 AS backend
 WORKDIR /app
 COPY backend/ ./backend
