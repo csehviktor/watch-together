@@ -3,7 +3,7 @@ import { useNavigate } from "react-router"
 import { useRef, useState } from "react"
 import { useLocalStorage } from "@/hooks/useLocalStorage"
 import { Avatar } from "@/components/Avatar"
-import { Play, Users, Camera, Settings, Tv, ChevronUp, ChevronDown, Github, Loader2 } from "lucide-react"
+import { Play, Users, Camera, Settings, Tv, ChevronUp, ChevronDown, Github } from "lucide-react"
 
 export default function HomePage() {
     const navigate = useNavigate()
@@ -14,34 +14,10 @@ export default function HomePage() {
     const [showUserMenu, setShowUserMenu] = useState<boolean>(false)
     const [showRoomSettings, setShowRoomSettings] = useState<boolean>(false)
     const [roomSettings, setRoomSettings] = useState<RoomSettings>({ max_clients: 10, admin_play_restriction: false })
-    const [isChecking, setIsChecking] = useState(false)
-    const [joinError, setJoinError] = useState<string | null>(null)
 
     const handleJoinRoom = async () => {
         const code = roomCode.trim()
-        if (!code || isChecking) {
-            return
-        }
-
-        setIsChecking(true)
-        setJoinError(null)
-
-        const api = import.meta.env.DEV ? 'http://localhost:3000' : ''
-
-        try {
-            const response = await fetch(`${api}/checkroom/${code}/`)
-
-            if (response.ok) {
-                navigate(`/room/${code}/`)
-            } else {
-                setJoinError("Room not found.")
-            }
-        } catch (error) {
-            console.error("Failed to check room:", error)
-            setJoinError("Could not connect to server.")
-        } finally {
-            setIsChecking(false)
-        }
+        if (code) navigate(`/room/${code}/`)
     }
 
     const handleCreateRoom = () => {
@@ -169,31 +145,18 @@ export default function HomePage() {
                                 <input
                                     type="text"
                                     value={roomCode}
-                                    onChange={(e) => {
-                                        setRoomCode(e.target.value)
-                                        setJoinError(null)
-                                    }}
+                                    onChange={(e) => setRoomCode(e.target.value)}
                                     placeholder="enter room code"
                                     className="w-full bg-gray-700/20 border border-gray-600/60 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all text-lg"
                                     onKeyDown={(e) => e.key === "Enter" && handleJoinRoom()}
                                 />
                                 <button
                                     onClick={handleJoinRoom}
-                                    disabled={!roomCode.trim() || !client || !client?.username.trim() || isChecking}
+                                    disabled={!roomCode.trim() || !client || !client?.username.trim()}
                                     className="cursor-pointer w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-secondary font-semibold py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center space-x-2 text-lg shadow-lg shadow-purple-600/25 disabled:shadow-none"
                                 >
-                                    {isChecking ? (
-                                        <>
-                                            <Loader2 className="w-5 h-5 animate-spin" />
-                                            <span>Checking...</span>
-                                        </>
-                                    ) : (
-                                        "Join room"
-                                    )}
+                                    Join room
                                 </button>
-                                {joinError && (
-                                    <p className="text-sm text-center text-red-400">{joinError}</p>
-                                )}
                             </div>
                         </div>
 
@@ -304,13 +267,14 @@ export default function HomePage() {
 
             {/* when user clicks outside user menu */}
             {showUserMenu && (
-                <div onClick={() => {
-                    setShowUserMenu(false)
-                    localStorage.setItem("username", client!.username)
-
-                    if (client?.avatar) localStorage.setItem("avatar", client!.avatar)
-                }}
-                    className="fixed inset-0 z-10"></div>
+                <div
+                    className="fixed inset-0 z-10"
+                    onClick={() => {
+                        setShowUserMenu(false)
+                        localStorage.setItem("username", client!.username)
+                        if (client?.avatar) localStorage.setItem("avatar", client!.avatar)
+                    }}
+                />
             )}
         </div>
     )

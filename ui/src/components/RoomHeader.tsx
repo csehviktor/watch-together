@@ -38,8 +38,8 @@ export function RoomHeader({ code, connection }: { code: string, connection: Con
                     bgColor: "bg-red-400",
                     icon: <WifiOff className="w-4 h-4" />
                 }
-            }
         }
+    }
 
     const copyRoomCode = () => {
         navigator.clipboard.writeText(code || "")

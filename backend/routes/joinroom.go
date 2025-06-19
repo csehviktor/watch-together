@@ -19,7 +19,12 @@ func HandleJoinRoom(ws *websocket.Conn) {
 
 	room := manager.GetRoomByCode(code)
 
-	if room == nil || room.Clients[receiveClient.Username] != nil || room.Settings.MaxClients <= len(room.Clients) {
+	if room == nil {
+		ws.Write(services.NewErrorMessage("room was not found").Encode())
+		return
+	}
+
+	if room.Clients[receiveClient.Username] != nil || room.Settings.MaxClients <= len(room.Clients) {
 		ws.Write(services.NewErrorMessage("connecting to room was unsuccessful").Encode())
 		return
 	}
