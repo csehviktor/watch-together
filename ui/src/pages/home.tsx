@@ -213,7 +213,7 @@ export default function HomePage() {
                                                     <span className="text-secondary font-medium">{roomSettings.max_clients}</span>
                                                 </div>
                                             </div>
-                                            <p className="text-xs text-gray-400 mt-2">Set the maximum number of people who can join your room (2-20)</p>
+                                            <p className="text-xs text-gray-400 mt-2">Set the maximum number of people who can join your room</p>
                                         </div>
 
                                         <div className="mt-8">
@@ -226,7 +226,7 @@ export default function HomePage() {
                                                         <Play className="w-4 h-4 text-green-400" />
                                                         <span className="text-secondary font-medium word-wrap">Only admin can play video</span>
                                                     </div>
-                                                    <p className="text-xs text-secondary/70 mt-5">
+                                                    <p className="text-xs text-gray-400 mt-5">
                                                         When enabled, only the room creator can control video playback
                                                     </p>
                                                 </div>
