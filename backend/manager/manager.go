@@ -12,12 +12,15 @@ type manager struct {
 	rooms map[string]*services.Room
 }
 
-var instance *manager = nil
+var (
+	instance *manager
+	once     sync.Once
+)
 
 func Instance() *manager {
-	if instance == nil {
+	once.Do(func() {
 		instance = &manager{rooms: make(map[string]*services.Room)}
-	}
+	})
 	return instance
 }
 
