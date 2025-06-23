@@ -32,18 +32,16 @@ type message struct {
 
 func newMessage(msgType messageType, sender *client, data any) *message {
 	msg := &message{
-		receiveMessage: receiveMessage{
-			Type: msgType,
-		},
-		Sender:    sender,
-		Timestamp: time.Now(),
+		receiveMessage: receiveMessage{Type: msgType},
+		Sender:         sender,
+		Timestamp:      time.Now(),
 	}
 
 	switch v := data.(type) {
 	case string:
-		msg.receiveMessage.Data = v
+		msg.Data = v
 	case *Room:
-		msg.receiveMessage.RoomState = v
+		msg.RoomState = v
 	default:
 		return nil
 	}
@@ -52,7 +50,13 @@ func newMessage(msgType messageType, sender *client, data any) *message {
 }
 
 func NewErrorMessage(data string) *message {
-	return newMessage(messageError, nil, data)
+	return &message{
+		receiveMessage: receiveMessage{
+			Type: messageError,
+			Data: data,
+		},
+		Timestamp: time.Now(),
+	}
 }
 
 func (m *message) Encode() []byte {

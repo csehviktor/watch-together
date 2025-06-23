@@ -38,8 +38,6 @@ func (c *client) Leave(room *Room) {
 }
 
 func (c *client) ReadLoop() {
-	defer c.connection.Close()
-
 	for {
 		var receivedMessage *receiveMessage
 
@@ -50,19 +48,12 @@ func (c *client) ReadLoop() {
 			c.connection.Write(NewErrorMessage("error reading message").Encode())
 			continue
 		}
-		message := newMessage(receivedMessage.Type, c, receivedMessage.Data)
-
-		c.room.forward <- message
+		c.room.forward <- newMessage(receivedMessage.Type, c, receivedMessage.Data)
 	}
 }
 
 func (c *client) WriteLoop() {
-	defer c.connection.Close()
-
 	for msg := range c.receive {
-		if err := websocket.JSON.Send(c.connection, msg); err != nil {
-			c.connection.Write(NewErrorMessage("error writing message").Encode())
-			continue
-		}
+		websocket.JSON.Send(c.connection, msg)
 	}
 }

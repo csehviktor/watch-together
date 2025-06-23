@@ -2,6 +2,7 @@ package manager
 
 import (
 	"log"
+	"sync"
 	"time"
 
 	"github.com/csehviktor/watch-together/services"
@@ -24,19 +25,12 @@ func Instance() *manager {
 	return instance
 }
 
-func DeleteRoomCronjob() {
-	manager := Instance()
-
+func CleanupInactiveRooms() {
 	ticker := time.NewTicker(3 * time.Minute)
 	defer ticker.Stop()
 
-	for {
-		select {
-		case <-ticker.C:
-			for _, room := range manager.rooms {
-				manager.attemptRemoveRoom(room)
-			}
-		}
+	for range ticker.C {
+		Instance().removeInactiveRooms()
 	}
 }
 
@@ -50,15 +44,14 @@ func (m *manager) CreateRoom(roomSettings *services.RoomSettings) *services.Room
 	return room
 }
 
-func (m *manager) attemptRemoveRoom(room *services.Room) {
-	// return if more than 0 users, or last activity was less than 3 minutes ago
-	if len(room.Clients) > 0 || time.Since(room.LastActivity) < 3*time.Minute {
-		return
+func (m *manager) removeInactiveRooms() {
+	for code, room := range m.rooms {
+		if len(room.Clients) == 0 && time.Since(room.LastActivity) >= 3*time.Minute {
+			delete(m.rooms, code)
+			room.Close()
+			log.Printf("deleted room: %s", code)
+		}
 	}
-	delete(m.rooms, room.Code)
-	room.Close()
-
-	log.Printf("deleted room: %s", room.Code)
 }
 
 func (m *manager) GetRoomByCode(code string) *services.Room {

@@ -15,14 +15,11 @@ func GenerateRoomCode() string {
 	return string(b)
 }
 
-const youtubePattern = `^(https?:\/\/)?(www\.)?(youtube|youtu|youtube-nocookie)\.(com|be)\/(watch\?v=|embed\/|v\/|.+\?v=)?([^&=%\?]{11})`
+var youtubeRegex = regexp.MustCompile(`^(https?:\/\/)?(www\.)?(youtube|youtu|youtube-nocookie)\.(com|be)\/(watch\?v=|embed\/|v\/|.+\?v=)?([^&=%\?]{11})`)
 
 func IsYoutubeVideo(url any) bool {
-	switch v := url.(type) {
-	case string:
-		re := regexp.MustCompile(youtubePattern)
-		return re.MatchString(v)
-	default:
-		return false
+	if v, ok := url.(string); ok {
+		return youtubeRegex.MatchString(v)
 	}
+	return false
 }

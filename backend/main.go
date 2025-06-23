@@ -14,7 +14,7 @@ import (
 const defaultAddr = ":3000"
 
 func main() {
-	go manager.DeleteRoomCronjob()
+	go manager.CleanupInactiveRooms()
 
 	http.HandleFunc("/", serveStaticFiles("ui/dist"))
 	http.Handle("/createroom/", websocket.Handler(routes.HandleCreateRoom))
@@ -29,14 +29,14 @@ func main() {
 
 func serveStaticFiles(distDir string) http.HandlerFunc {
 	fs := http.FileServer(http.Dir(distDir))
+	path := filepath.Join(distDir, "index.html")
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		fp := filepath.Join(distDir, r.URL.Path)
-		if stat, err := os.Stat(fp); err == nil && !stat.IsDir() {
+		if _, err := os.Stat(fp); err == nil {
 			fs.ServeHTTP(w, r)
 			return
 		}
-
-		http.ServeFile(w, r, filepath.Join(distDir, "index.html"))
+		http.ServeFile(w, r, path)
 	}
 }

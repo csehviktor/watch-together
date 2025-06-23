@@ -56,8 +56,6 @@ func (r *Room) Run() {
 			r.handleMessage(message)
 		}
 		r.LastActivity = time.Now()
-
-		// broadcast room state on every interaction
 		r.broadcastMessage(newMessage(messageRoomState, nil, r))
 	}
 }
@@ -70,7 +68,6 @@ func (r *Room) Close() {
 }
 
 func (r *Room) joinClient(c *client) {
-	// first one to join room gets to be admin
 	if len(r.Clients) == 0 {
 		r.Admin = c
 	}
@@ -83,7 +80,6 @@ func (r *Room) leaveClient(c *client) {
 	c.connection.Close()
 	r.broadcastRawMessage("client (%s) left the room", c.Username)
 
-	// random client gets to be admin if admin leaves
 	if r.Admin == c && len(r.Clients) > 0 {
 		r.Admin = r.randomClient()
 	}
@@ -129,8 +125,8 @@ func (r *Room) handleKickMessage(msg *message) {
 		return
 	}
 
-	target := r.Clients[msg.Data]
-	if target == nil || target == msg.Sender {
+	target, exists := r.Clients[msg.Data]
+	if !exists || target == msg.Sender {
 		msg.Sender.receive <- NewErrorMessage("can't kick client")
 		return
 	}
@@ -143,12 +139,11 @@ func (r *Room) handlePlayMessage(msg *message) {
 		return
 	}
 
-	video := newVideo(msg.Data)
-	if video == nil {
+	if video := newVideo(msg.Data); video != nil {
+		r.Video = video
+	} else {
 		msg.Sender.receive <- NewErrorMessage("invalid video")
-		return
 	}
-	r.Video = video
 }
 
 func (r *Room) handleUnpauseMessage() {
@@ -164,13 +159,9 @@ func (r *Room) handlePauseMessage() {
 }
 
 func (r *Room) handleSeekMessage(msg *message) {
-	if r.Video == nil {
-		return
+	if r.Video != nil {
+		if timestamp, err := strconv.Atoi(msg.Data); err == nil {
+			r.Video.seekTo(timestamp)
+		}
 	}
-
-	timestamp, err := strconv.Atoi(msg.Data)
-	if err != nil {
-		return
-	}
-	r.Video.seekTo(timestamp)
 }
