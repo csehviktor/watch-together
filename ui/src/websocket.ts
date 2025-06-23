@@ -29,6 +29,7 @@ export type Room = {
     settings: RoomSettings
     admin: WebsocketClient | null
     video: Video | null
+    queue: Video[]
     clients: Record<string, WebsocketClient>
 }
 
@@ -63,9 +64,10 @@ export function initializeConnection(url: string, callbacks: ConnectionCallbacks
             connection: ws,
             room: {
                 settings: roomSettings ?? { max_clients: 0, admin_play_restriction: false },
-                admin: null,
                 clients: {},
-                video: null
+                admin: null,
+                video: null,
+                queue: [],
             }
         })
         if(roomSettings) ws.send(JSON.stringify(roomSettings))

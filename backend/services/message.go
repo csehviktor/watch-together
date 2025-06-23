@@ -14,7 +14,9 @@ const (
 	messagePause     messageType = "pause"
 	messageUnpause   messageType = "unpause"
 	messageSeek      messageType = "seek"
+	messageSkip      messageType = "skip"
 	messageError     messageType = "error"
+	messageEndVideo  messageType = "ended"
 	messageRoomState messageType = "room"
 )
 

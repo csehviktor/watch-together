@@ -3,7 +3,7 @@
 import { sendWebsocketMessage, type WebsocketMessage } from "@/websocket"
 import { useEffect, useRef, useState } from "react"
 import { useWebsocket } from "@/hooks/useWebsocket"
-import { Play, Send, UserX } from "lucide-react"
+import { Play, Send, UserX, SkipForward } from "lucide-react"
 
 type Command = {
     name: string,
@@ -23,6 +23,11 @@ const commands: Command[] = [
         description: "Kick a player",
         usage: "/kick <username>",
         icon: <UserX className="w-4 h-4" />
+    }, {
+        name: "/skip",
+        description: "Skip to the next video in queue",
+        usage: "/skip",
+        icon: <SkipForward className="w-4 h-4" />
     }
 ]
 
@@ -109,9 +114,8 @@ export function RoomChat() {
 
         if(chatMessage.startsWith("/")) {
             const message: string[] = chatMessage.split(" ")
-
             const command = message[0].substring(1).trim()
-            const data = message[1].trim()
+            const data = message.length > 1 ? message[1].trim() : ""
 
             sendWebsocketMessage(command, data)
         } else {

@@ -10,15 +10,16 @@ export function VideoPlayer() {
     const lastSeekRef = useRef<number>(0)
     const playerRef = useRef<HTMLVideoElement | null>(null)
     const [volume, setVolume] = useState<number>(0)
+    const [queueLength, setQueueLength] = useState<number>(0)
     const [currentVideo, setCurrentVideo] = useState<Video | null>(null)
 
     useWebsocket({
-        room: ({ room: { video } }: { room: { video: Video } }) => {
-            if(lastSeekRef.current !== video.timestamp && playerRef.current) {
+        room: ({ room: { video, queue } }: { room: { video: Video, queue: Video[] } }) => {
+            if (lastSeekRef.current !== video.timestamp && playerRef.current) {
                 playerRef.current.currentTime = video.timestamp
             }
-
             setCurrentVideo(video)
+            setQueueLength(queue.length)
         }
     })
 
@@ -37,6 +38,12 @@ export function VideoPlayer() {
         lastSeekRef.current = timestamp
     }
 
+    function handleEnd() {
+        sendWebsocketMessage("ended")
+
+        if(queueLength > 0) sendWebsocketMessage("skip")
+    }
+
     return(
         <div className="bg-gray-900/60 backdrop-blur-sm border border-gray-700/40 rounded-xl overflow-hidden">
             <div className="relative aspect-video bg-black">
@@ -53,6 +60,7 @@ export function VideoPlayer() {
                             onPlay={handleUnpause}
                             onPause={handlePause}
                             onSeeked={handleSeek}
+                            onEnded={handleEnd}
                             className="w-full h-full object-cover"
                         />
                     ) : (

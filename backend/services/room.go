@@ -18,6 +18,7 @@ type Room struct {
 	Code         string             `json:"-"`
 	Admin        *client            `json:"admin"`
 	Video        *video             `json:"video"`
+	Queue        []*video           `json:"queue"`
 	Settings     *RoomSettings      `json:"settings"`
 	LastActivity time.Time          `json:"-"`
 	join         chan *client
@@ -32,6 +33,7 @@ func NewRoom(code string, settings *RoomSettings) *Room {
 		Code:         code,
 		Admin:        nil,
 		Video:        nil,
+		Queue:        make([]*video, 0),
 		Settings:     settings,
 		LastActivity: time.Now(),
 		join:         make(chan *client),
@@ -112,8 +114,12 @@ func (r *Room) handleMessage(msg *message) {
 		r.handleUnpauseMessage()
 	case messagePause:
 		r.handlePauseMessage()
+	case messageEndVideo:
+		r.handleEndVideoMessage()
 	case messageSeek:
 		r.handleSeekMessage(msg)
+	case messageSkip:
+		r.handleSkipMessage(msg)
 	case messageChat:
 		r.broadcastMessage(msg)
 	}
@@ -140,7 +146,13 @@ func (r *Room) handlePlayMessage(msg *message) {
 	}
 
 	if video := newVideo(msg.Data); video != nil {
-		r.Video = video
+		if r.Video == nil {
+			r.Video = video
+			r.broadcastRawMessage("playing: %s", video.Url)
+		} else {
+			r.Queue = append(r.Queue, video)
+			r.broadcastRawMessage("queued: %s by %s", video.Url, msg.Sender.Username)
+		}
 	} else {
 		msg.Sender.receive <- NewErrorMessage("invalid video")
 	}
@@ -164,4 +176,23 @@ func (r *Room) handleSeekMessage(msg *message) {
 			r.Video.seekTo(timestamp)
 		}
 	}
+}
+
+func (r *Room) handleSkipMessage(msg *message) {
+	if r.Settings.AdminPlayRestriction && msg.Sender != r.Admin {
+		msg.Sender.receive <- NewErrorMessage("no permission")
+		return
+	}
+
+	if len(r.Queue) > 0 {
+		r.Video = r.Queue[0]
+		r.Queue = r.Queue[1:]
+		r.broadcastRawMessage("now playing: %s", r.Video.Url)
+	} else {
+		msg.Sender.receive <- NewErrorMessage("no video in queue")
+	}
+}
+
+func (r *Room) handleEndVideoMessage() {
+	r.Video = nil
 }
