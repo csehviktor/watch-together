@@ -11,10 +11,11 @@ Synchronized video watching with real-time chat.
 - [x] Video synchronization
 - [x] Username and avatar management
 - [x] Room settings
+    - [x] Admin restriction for playing
+    - [x] Set maximum number of clients
 - [x] Admin actions
     - [x] Kick
-    - [ ] Play restriction
-- [ ] Queue videos
+- [x] Queue videos
 - [ ] Support for other video sharing platforms
 
 ## Run
